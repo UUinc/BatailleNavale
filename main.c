@@ -4,18 +4,24 @@
 //Global
 //to keep how much part of ship each player destroy and also to know the winner
 int Score[2];
+/*deleted after */char data[6][6]={{'A','A','A',' ',' ',' '},
+                                   {' ',' ',' ',' ',' ',' '},
+                                   {' ',' ',' ','C',' ',' '},
+                                   {'B',' ',' ',' ','C',' '},
+                                   {'B',' ',' ',' ',' ','C'},
+                                   {'B',' ',' ',' ',' ',' '}};
 
 //Declaration
 int Menu(void);
-void DisplayMatrice(int dimension);
+void DisplayMatrice(void);
 
 int main()
 {
     printf("_______ Bataille Navale _______\n\n");
-    
+
     Menu();
 
-    DisplayMatrice(10);
+    DisplayMatrice();
 
     printf("\nGood Bye!\n");
     getch();
@@ -46,42 +52,35 @@ int Menu()
     return choice;
 }
 
-//Display Matrix 10 x 10
-void DisplayMatrice(int dimension)
+//Display Matrix 6 x 6
+void DisplayMatrice()
 {
-    int i, j;
-
-    printf("\n");
-
-    for(i=0; i<dimension; i++)
+    int i, j, k, l;
+    char grid[14][14]={{' ',' ','1',' ','2',' ','3',' ','4',' ','5',' ','6',' '},
+                       {' ',' ','_','_','_','_','_','_','_','_','_','_','_',' '},
+                       {'A','|',' ','|',' ','|',' ','|',' ','|',' ','|',' ','|'},
+                       {' ','|','-','-','-','-','-','-','-','-','-','-','-','|'},
+                       {'B','|',' ','|',' ','|',' ','|',' ','|',' ','|',' ','|'},
+                       {' ','|','-','-','-','-','-','-','-','-','-','-','-','|'},
+                       {'C','|',' ','|',' ','|',' ','|',' ','|',' ','|',' ','|'},
+                       {' ','|','-','-','-','-','-','-','-','-','-','-','-','|'},
+                       {'D','|',' ','|',' ','|',' ','|',' ','|',' ','|',' ','|'},
+                       {' ','|','-','-','-','-','-','-','-','-','-','-','-','|'},
+                       {'E','|',' ','|',' ','|',' ','|',' ','|',' ','|',' ','|'},
+                       {' ','|','-','-','-','-','-','-','-','-','-','-','-','|'},
+                       {'F','|',' ','|',' ','|',' ','|',' ','|',' ','|',' ','|'},
+                       {' ','|','_','|','_','|','_','|','_','|','_','|','_','|'}};
+    
+    for(i=0,k=0; i<14; i++)
     {
-        for(j=0; j<dimension; j++)
+        for(j=0,l=0; j<14; j++)
         {
-            if(j == 0 || j == dimension-1)
+            if(i>1 && j>1 && i%2==0 && j%2==0) 
             {
-                if(i!=0)
-                {
-                    if(j==0)
-                        printf("%c",64+i);
-                    else
-                        printf("|"); 
-                }
-                else
-                {
-                    printf(" ");
-                }
+                printf("%c ",data[k][l]);
+                l++; k+= l>5?1:0;
             }
-            else if(i == 0 || i == dimension-1)
-            {
-                if(i==0)
-                    printf("%d",j);
-                else
-                    printf("_");
-            }
-            else
-            {
-                printf(" ");
-            }
+            else printf("%c ",grid[i][j]);   
         }
         printf("\n");
     }
