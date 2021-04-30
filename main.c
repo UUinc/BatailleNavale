@@ -20,8 +20,6 @@ void DisplayGrid(void);
 
 int main()
 {
-    printf("_______ Bataille Navale _______\n\n");
-    
     Title();
     
     Menu();
