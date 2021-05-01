@@ -1,18 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <conio.h>
+#include <windows.h>
 
 //Structs
 typedef struct
 {
+    time_t start;
+    time_t end;
+}GameTime;
+
+typedef struct
+{
     int x,y;
 }position;
+
 typedef struct
 {
     char name[10];
     //position of each box
     position pos[3];
 }Navire;
+
 typedef struct
 {
     char name[20];
@@ -32,6 +42,7 @@ void HowToPlay(void);
 
 //Global
 //to keep how much part of ship each player destroy and also to know the winner
+GameTime gameTime;
 Winner player2;
 /*deleted after */char data[6][6]={{'A','A','A',' ',' ',' '},
                                    {' ',' ',' ',' ',' ',' '},
@@ -52,11 +63,14 @@ int main()
         switch(result)
         {
             case 1:
-                //Testing
                 DisplayGrid();
-                printf("Missiles and Time : ");scanf("%d%d",&player2.missiles,&player2.time);
-                SetWinner();
-                GetWinner();
+                
+                // //Player 1 funtion here ...
+
+                // //Player 2
+                // gameTime.start = time(0);
+                // Player2 function here ...
+                // gameTime.end = time(0);
                 break;
             case 2: HowToPlay(); break;
             case 0: printf("\nGood Bye!\n"); break;
@@ -163,7 +177,8 @@ void SetWinner()
 void GetWinner()
 {
     float score;
-
+    
+    player2.time = difftime(gameTime.end,gameTime.start);
     score = player2.time < player2.missiles ? (float)player2.missiles / (float)player2.time : (float)player2.time / (float)player2.missiles;
     score *= 10;
 
