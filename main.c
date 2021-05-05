@@ -32,23 +32,32 @@ typedef struct
 }Winner;
 
 //Function Declaration
+//UI
 void Title();
 void TitleAscii();
 void BoatAscii();
 int Menu(void);
 void DisplayGrid(int choice);
-void SetWinner(void);
-void GetWinner(void);
-void HowToPlay(void);
+//Player 1
+//Player 2
+void Player2();
 int MissileLauncher(int x, int y, int nbrCases);
 int CoordinateConverter(int *x, int *y, char v[]);
+void SetWinner(void);
+void GetWinner(void);
+//How To Play
+void HowToPlay(void);
+//Settings
+void Settings(void);
+void DarkMode(int on);
+//Tools
 void DeleteBlankSpaces(char *s);
-void Player2();
 
 //Global
 //to keep how much part of ship each player destroy and also to know the winner
 GameTime gameTime;
 Winner player2;
+int darkMode=0;//0 = off - 1 = on
 char data[6][6]={{'A','A','A',' ',' ',' '},
                  {' ',' ',' ',' ',' ',' '},
                  {' ',' ',' ','C',' ',' '},
@@ -66,9 +75,13 @@ char data2[6][6]={{' ',' ',' ',' ',' ',' '},
 int main()
 {
     int result;
-
+    //Game Background Color
+    textcolor(WHITE);
+    
     do
     {
+        DarkMode(darkMode);
+        system("cls");
         Title();
         result = Menu();
 
@@ -76,7 +89,6 @@ int main()
         {
             case 1:
                 DisplayGrid(0);
-
                 // //Player 1 funtion here ...
 
                 // //Player 2
@@ -84,13 +96,10 @@ int main()
                 // Player2 function here ...
                 Player2();
                 // gameTime.end = time(0);
-
-                //printf("Test\n\nMissiles : ");scanf("%d",&player2.missiles);
-                //printf("\nTime     : ");scanf("%d",&player2.time);
-                //GetWinner();
                 break;
             case 2: HowToPlay(); break;
-            case 0: printf("\nGood Bye!\n"); break;
+            case 3: Settings(); break;
+            case 0: exit(0);
         }
         getch();
         system("cls");
@@ -98,7 +107,7 @@ int main()
 
     return 0;
 }
-
+//UI Functions Declaration
 void Title()
 {
     TitleAscii();
@@ -112,17 +121,21 @@ void TitleAscii()
 }
 void BoatAscii()
 {
-    printf("              |    |    |\n");
-    printf("             )_)  )_)  )_)\n");
-    printf("            )___))___))___)\\\n");
-    printf("           )____)____)_____)\\\\\n");
-    printf("         _____|____|____|____\\\\\\__\n");
-    printf("---------\\                   /---------\n");
+    textcolor(BROWN);printf("              |    |    |\n");
+    textcolor(WHITE);printf("             )_)  )_)  )_)\n");
+    printf("            )___))___))___)");
+    textcolor(BROWN);printf("\\\n");
+    textcolor(WHITE);printf("           )____)____)_____)");
+    textcolor(BROWN);printf("\\\\\n");
+    textcolor(BROWN);printf("         _____|____|____|____\\\\\\__\n");
+    textcolor(WHITE); printf("---------");
+    textcolor(BROWN);printf("\\___________________/");
+    textcolor(WHITE);printf("---------\n");
     printf("  ^^^^^ ^^^^^^^^^^^^^^^^^^^^^\n");
     printf("    ^^^^      ^^^^     ^^^    ^^\n");
     printf("         ^^^^      ^^^\n\n");
+    textcolor(WHITE);
 }
-
 //Display a Menu to let the user choose what to do
 int Menu()
 {
@@ -131,6 +144,7 @@ int Menu()
     printf("Menu :\n\n");
     printf("1.Play\n");
     printf("2.How To Play\n");
+    printf("3.Settings\n");
     printf("0.Exit\n");
 
     do
@@ -138,14 +152,13 @@ int Menu()
         printf("\nChoice : ");
         fflush(stdin);
         error = !scanf("%d",&choice);
-        error = error || choice > 2 || choice < 0 ? 1 : 0;
+        error = error || choice > 3 || choice < 0 ? 1 : 0;
         if(error)
             printf("choice incorrect!\n");
     } while (error);
 
     return choice;
 }
-
 //Display Matrix 6 x 6
 //choice (0==data, 1==data2)
 void DisplayGrid(int choice)
@@ -186,85 +199,8 @@ void DisplayGrid(int choice)
         printf("\n");
     }
 }
-
-void SetWinner()
-{
-    printf("\n****** Winner ******\n\n");
-    printf("    Your Name : "); fflush(stdin); gets(player2.name);
-}
-
-void GetWinner()
-{
-    float score;
-
-    //player2.time = difftime(gameTime.end,gameTime.start);
-    score = player2.time > player2.missiles ? (float)player2.missiles / (float)player2.time : (float)player2.time / (float)player2.missiles;
-    score *= 100; score = score<1 ? 1 : 0;
-
-    printf("\n****** Winner ******\n\n");
-    printf("    Name  : %s\n",player2.name);
-    printf("    Score : %.0f\n",score);
-}
-
-void HowToPlay()
-{
-    printf("\nHow To Play : Bataille Navale\n\n");
-    printf("Au d\x82""but du jeu, chaque joueur place \x85 sa guise tous les bateaux sur sa grille de fa\x87on strat\x82gique. ");
-    printf("Le but \x82tant de compliquer au maximum la tache de son adversaire, c'est-\x85-dire d\x82truire tous vos navires.");
-    printf("\nLorem ipsum dolor sit amet, consectetur adipiscing elit, "
-    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, "
-    "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-    " Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n");
-}
-
-int MissileLauncher(int x, int y, int nbrCases)
-{
-    static int hits=0;
-
-    if(data2[x][y] == ' ')
-    {
-        if(data[x][y] == ' ') data2[x][y] = 'X';
-        else
-        {
-            data2[x][y] = data[x][y]; hits++;
-        }
-    }
-    else{ printf("\nThe Box already striked!\n"); getch();}
-
-    return hits >= nbrCases ? 1 : 0;
-}
-
-int CoordinateConverter(int *x, int *y, char v[])
-{
-    int len;
-    DeleteBlankSpaces(v); len = strlen(v);
-
-    if(len != 2) return 0;
-    if(!(((v[0]>='A' && v[0]<='F') || (v[0]>='a' && v[0]<='f')) && (v[1]>='1' && v[1]<='6'))) return 0;
-
-    if(v[0]>='A' && v[0]<='F') *x = v[0]-65;
-    else *x = v[0] - 97;
-
-    *y = (v[1]-'0')-1;
-
-    return 1;
-}
-
-void DeleteBlankSpaces(char *s)
-{
-	int i,k=0;
- 
-	for(i=0;s[i];i++)
-    {
-     	s[i]=s[i+k];
-     	if(s[i]==' '|| s[i]=='\t')
-     	{
-		  k++; i--;
-	    }
-    }
-}
-
+// Player 1 functions Definition
+// Player 2 functions Definition
 void Player2()
 {
     int x,y;
@@ -284,4 +220,96 @@ void Player2()
     system("cls");
     printf("          Player 2\n\n");
     DisplayGrid(1);
+}
+int MissileLauncher(int x, int y, int nbrCases)
+{
+    static int hits=0;
+
+    if(data2[x][y] == ' ')
+    {
+        if(data[x][y] == ' ') data2[x][y] = 'X';
+        else
+        {
+            data2[x][y] = data[x][y]; hits++;
+        }
+    }
+    else{ printf("\nThe Box already striked!\n"); getch();}
+
+    return hits >= nbrCases ? 1 : 0;
+}
+int CoordinateConverter(int *x, int *y, char v[])
+{
+    int len;
+    DeleteBlankSpaces(v); len = strlen(v);
+
+    if(len != 2) return 0;
+    if(!(((v[0]>='A' && v[0]<='F') || (v[0]>='a' && v[0]<='f')) && (v[1]>='1' && v[1]<='6'))) return 0;
+
+    if(v[0]>='A' && v[0]<='F') *x = v[0]-65;
+    else *x = v[0] - 97;
+
+    *y = (v[1]-'0')-1;
+
+    return 1;
+}
+void SetWinner()
+{
+    printf("\n****** Player 2 ******\n\n");
+    printf("    Your Name : "); fflush(stdin); gets(player2.name);
+}
+void GetWinner()
+{
+    float score;
+
+    //player2.time = difftime(gameTime.end,gameTime.start);
+    score = player2.time > player2.missiles ? (float)player2.missiles / (float)player2.time : (float)player2.time / (float)player2.missiles;
+    score *= 100; score = score<1 ? 1 : 0;
+
+    printf("\n****** Score ******\n\n");
+    printf("    Name  : %s\n",player2.name);
+    printf("    Score : %.0f\n",score);
+}
+//How To Play Functions Definition
+void HowToPlay()
+{
+    system("cls");
+    printf("\nHow To Play : Bataille Navale\n\n");
+    printf("Au d\x82""but du jeu, chaque joueur place \x85 sa guise tous les bateaux sur sa grille de fa\x87on strat\x82gique. ");
+    printf("Le but \x82tant de compliquer au maximum la tache de son adversaire, c'est-\x85-dire d\x82truire tous vos navires.");
+    printf("\nLorem ipsum dolor sit amet, consectetur adipiscing elit, "
+    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, "
+    "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+    " Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n");
+}
+//Settings Functions Definition
+void Settings(void)
+{
+    system("cls");
+    printf("Settings\n\n");
+    printf("-Dark Mode (1:ON or 0:OFF): ");
+    do{
+        scanf("%d",&darkMode);
+        if(darkMode==0 || darkMode==1) break;
+        printf("Error! only (1:ON or 0:OFF)");
+    }while(1);
+}
+void DarkMode(int on)
+{
+    if(on) { textbackground(BLACK); return;}
+    textbackground(CYAN);
+}
+//Tools
+void DeleteBlankSpaces(char *s)
+{
+	int i,k=0;
+ 
+	for(i=0;s[i];i++)
+    {
+     	s[i]=s[i+k];
+     	if(s[i]==' '|| s[i]=='\t')
+     	{
+		  k++; i--;
+	    }
+    }
 }
