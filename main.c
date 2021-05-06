@@ -243,12 +243,14 @@ int CoordinateConverter(int *x, int *y, char v[])
     DeleteBlankSpaces(v); len = strlen(v);
 
     if(len != 2) return 0;
-    if(!(((v[0]>='A' && v[0]<='F') || (v[0]>='a' && v[0]<='f')) && (v[1]>='1' && v[1]<='6'))) return 0;
+    if((!(((v[0]>='A' && v[0]<='F') || (v[0]>='a' && v[0]<='f')) && (v[1]>='1' && v[1]<='6')))
+    && (!(((v[1]>='A' && v[1]<='F') || (v[1]>='a' && v[1]<='f')) && (v[0]>='1' && v[0]<='6'))))
+        return 0;
 
-    if(v[0]>='A' && v[0]<='F') *x = v[0]-65;
-    else *x = v[0] - 97;
+    if(islower(v[0])) v[0]=toupper(v[0]); if(islower(v[1])) v[1]=toupper(v[1]);
 
-    *y = (v[1]-'0')-1;
+    if(v[0]>='A' && v[0]<='F') *x = v[0]-65; else *x = v[1]-65;
+    if(v[0]>='1' && v[0]<='6') *y = (v[0]-'0')-1; else *y = (v[1]-'0')-1;
 
     return 1;
 }
