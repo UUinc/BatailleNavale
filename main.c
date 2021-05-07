@@ -19,13 +19,6 @@ typedef struct
 
 typedef struct
 {
-    char name[10];
-    //position of each box
-    position pos[3];
-}Navire;
-
-typedef struct
-{
     char name[20];
     int missiles;
     int time;
@@ -39,10 +32,11 @@ void BoatAscii();
 int Menu(void);
 void DisplayGrid(int choice);
 //Player 1
+void Player1();
+void SetShip(char name);
 //Player 2
 void Player2();
 int MissileLauncher(int x, int y, int nbrCases);
-int CoordinateConverter(int *x, int *y, char v[]);
 void SetWinner(void);
 void GetWinner(void);
 //How To Play
@@ -51,30 +45,25 @@ void HowToPlay(void);
 void Settings(void);
 void DarkMode(int on);
 //Tools
+void InitData(char str[][6],int len,char c);
+void GetCoordinate(int *x, int *y);
+int CoordinateConverter(int *x, int *y, char v[]);
 void DeleteBlankSpaces(char *s);
 
 //Global
-//to keep how much part of ship each player destroy and also to know the winner
 GameTime gameTime;
 Winner player2;
-int darkMode=0;//0 = off - 1 = on
-char data[6][6]={{'A','A','A',' ',' ',' '},
-                 {' ',' ',' ',' ',' ',' '},
-                 {' ',' ',' ','C',' ',' '},
-                 {'B',' ',' ',' ','C',' '},
-                 {'B',' ',' ',' ',' ','C'},
-                 {'B',' ',' ',' ',' ',' '}};
-
-char data2[6][6]={{' ',' ',' ',' ',' ',' '},
-                  {' ',' ',' ',' ',' ',' '},
-                  {' ',' ',' ',' ',' ',' '},
-                  {' ',' ',' ',' ',' ',' '},
-                  {' ',' ',' ',' ',' ',' '},
-                  {' ',' ',' ',' ',' ',' '}};
+int darkMode=0; //0 = off - 1 = on
+char data[6][6], data2[6][6];
 
 int main()
 {
     int result;
+
+    //Initialize string by spaces
+    InitData(data,6,' ');
+    InitData(data2,6,' ');
+
     //Game Background Color
     textcolor(WHITE);
     
@@ -88,9 +77,8 @@ int main()
         switch(result)
         {
             case 1:
-                DisplayGrid(0);
                 // //Player 1 funtion here ...
-
+                Player1();
                 // //Player 2
                 // gameTime.start = time(0);
                 // Player2 function here ...
@@ -200,25 +188,56 @@ void DisplayGrid(int choice)
     }
 }
 // Player 1 functions Definition
+void Player1()
+{
+    int i,j;
+    char navire[3]={'A','B','C'};
+
+    for(i=0; i<3; i++)
+    {
+        for(j=0; j<3; j++)
+        {
+            system("cls");
+            printf("Player 1\n\n");
+            DisplayGrid(0);
+            SetShip(navire[i]);
+        }
+    }
+    system("cls");
+    printf("Player 1\n\n");
+    DisplayGrid(0);
+}
+void SetShip(char name)
+{
+    position pos;
+    do
+    {
+        GetCoordinate(&pos.x,&pos.y);
+        if(data[pos.x][pos.y] == ' ')
+        {
+            data[pos.x][pos.y] = name;
+            break;
+        }
+        else
+        {
+            printf("\nThe ship block is occupied!\n");
+            getch();
+        }
+    }while(1);
+}
 // Player 2 functions Definition
 void Player2()
 {
-    int x,y;
-    char coordinate[2];
+    position pos;
     do
     {
         system("cls");
-        printf("          Player 2\n\n");
+        printf("Player 2\n\n");
         DisplayGrid(1);
-        do
-        {
-            printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
-            if(CoordinateConverter(&x,&y,coordinate)) break;
-            printf("Incorrect Coordinate! (ex: A4)\n");
-        }while(1);
-    } while (!MissileLauncher(x,y,9));
+        GetCoordinate(&pos.x,&pos.y);
+    } while (!MissileLauncher(pos.x,pos.y,9));
     system("cls");
-    printf("          Player 2\n\n");
+    printf("Player 2\n\n");
     DisplayGrid(1);
 }
 int MissileLauncher(int x, int y, int nbrCases)
@@ -236,23 +255,6 @@ int MissileLauncher(int x, int y, int nbrCases)
     else{ printf("\nThe Box already striked!\n"); getch();}
 
     return hits >= nbrCases ? 1 : 0;
-}
-int CoordinateConverter(int *x, int *y, char v[])
-{
-    int len;
-    DeleteBlankSpaces(v); len = strlen(v);
-
-    if(len != 2) return 0;
-    if((!(((v[0]>='A' && v[0]<='F') || (v[0]>='a' && v[0]<='f')) && (v[1]>='1' && v[1]<='6')))
-    && (!(((v[1]>='A' && v[1]<='F') || (v[1]>='a' && v[1]<='f')) && (v[0]>='1' && v[0]<='6'))))
-        return 0;
-
-    if(islower(v[0])) v[0]=toupper(v[0]); if(islower(v[1])) v[1]=toupper(v[1]);
-
-    if(v[0]>='A' && v[0]<='F') *x = v[0]-65; else *x = v[1]-65;
-    if(v[0]>='1' && v[0]<='6') *y = (v[0]-'0')-1; else *y = (v[1]-'0')-1;
-
-    return 1;
 }
 void SetWinner()
 {
@@ -302,6 +304,41 @@ void DarkMode(int on)
     textbackground(CYAN);
 }
 //Tools
+void InitData(char str[][6],int len,char c)
+{
+    int i,j;
+    
+    for(i=0; i<len; i++)
+        for(j=0; j<len; j++)
+            str[i][j] = c;
+}
+void GetCoordinate(int *x, int *y)
+{
+    char coordinate[2];
+    do
+    {
+        printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
+        if(CoordinateConverter(x,y,coordinate)) break;
+        printf("Incorrect Coordinate! (ex: A4)\n");
+    }while(1);
+}
+int CoordinateConverter(int *x, int *y, char v[])
+{
+    int len;
+    DeleteBlankSpaces(v); len = strlen(v);
+
+    if(len != 2) return 0;
+    if((!(((v[0]>='A' && v[0]<='F') || (v[0]>='a' && v[0]<='f')) && (v[1]>='1' && v[1]<='6')))
+    && (!(((v[1]>='A' && v[1]<='F') || (v[1]>='a' && v[1]<='f')) && (v[0]>='1' && v[0]<='6'))))
+        return 0;
+
+    if(islower(v[0])) v[0]=toupper(v[0]); if(islower(v[1])) v[1]=toupper(v[1]);
+
+    if(v[0]>='A' && v[0]<='F') *x = v[0]-65; else *x = v[1]-65;
+    if(v[0]>='1' && v[0]<='6') *y = (v[0]-'0')-1; else *y = (v[1]-'0')-1;
+
+    return 1;
+}
 void DeleteBlankSpaces(char *s)
 {
 	int i,k=0;
