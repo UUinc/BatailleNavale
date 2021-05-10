@@ -172,7 +172,10 @@ void DisplayGrid(int choice)
     {
         for(j=3,l=0;j<26;j+=4,l++)
         {
-            if(!choice) grid[i][j] = data[k][l];
+            if(!choice)
+            {
+                grid[i][j] = data[k][l] != '#' ? data[k][l] : ' ';
+            }
             else  grid[i][j] = data2[k][l];
         }
     }
@@ -195,13 +198,10 @@ void Player1()
 
     for(i=0; i<3; i++)
     {
-        for(j=0; j<3; j++)
-        {
-            system("cls");
-            printf("Player 1\n\n");
-            DisplayGrid(0);
-            SetShip(navire[i]);
-        }
+        system("cls");
+        printf("Player 1\n\n");
+        DisplayGrid(0);
+        SetShip(navire[i]);
     }
     system("cls");
     printf("Player 1\n\n");
@@ -210,17 +210,139 @@ void Player1()
 void SetShip(char name)
 {
     position pos;
+    position posBloc[2];
+    int rotation;
     do
     {
+        GetCoord:
         GetCoordinate(&pos.x,&pos.y);
         if(data[pos.x][pos.y] == ' ')
         {
+            int available[8]={-1}; int i=0;
+            do
+            {
+                printf("Rotation :\n");
+                //Vertical Up
+                if(pos.x>=2 && data[pos.x-1][pos.y] == ' ' && data[pos.x-2][pos.y] == ' '){ printf(" 0.Vertical Up\n"); available[i++]=0;}
+                //Vertical Down
+                if(pos.x<4 && data[pos.x+1][pos.y] == ' ' && data[pos.x+2][pos.y] == ' '){ printf(" 1.Vertical Down\n"); available[i++]=1;}
+                //Horizontal Right
+                if(pos.y<4 && data[pos.x][pos.y+1] == ' ' && data[pos.x][pos.y+2] == ' '){ printf(" 2.Horizontal Right\n"); available[i++]=2;}
+                //Horizontal Left
+                if(pos.y>=2 && data[pos.x][pos.y-1] == ' ' && data[pos.x][pos.y-2] == ' '){ printf(" 3.Horizontal Left\n"); available[i++]=3;}
+                //Diagonal Up
+                if(pos.x>=2 && pos.y>=2 && data[pos.x-1][pos.y-1] == ' ' && data[pos.x-2][pos.y-2] == ' '){ printf(" 4.Diagonal Up\n"); available[i++]=4;}
+                //Diagonal Down
+                if(pos.x<4 && pos.y<4 && data[pos.x+1][pos.y+1] == ' ' && data[pos.x+2][pos.y+2] == ' '){ printf(" 5.Diagonal Down\n"); available[i++]=5;}
+                //Diagonal Reverse Down
+                if(pos.x<4 && pos.y>=2 && data[pos.x+1][pos.y-1] == ' ' && data[pos.x+2][pos.y-2] == ' '){ printf(" 6.Diagonal Reverse Down\n"); available[i++]=6;}
+                //Diagonal Reverse Up
+                if(pos.x>=2 && pos.y<4 && data[pos.x-1][pos.y+1] == ' ' && data[pos.x-2][pos.y+2] == ' '){ printf(" 7.Diagonal Reverse Up\n"); available[i++]=7;}
+                if(available[0] == -1)
+                {
+                    // Move to beginning of previous line and Clear entire line
+                    printf("\x1b[1F\x1b[2Kimpossible to set a navy here\n");
+                    goto GetCoord;
+                }
+                printf("choice : "); scanf("%d",&rotation);
+                //check if the rotation selected is available
+                for(;i>0;i--) if(rotation == available[i-1]) break;
+                if(i) break; i = 0;
+                printf("Error! rotation incorrect\n");
+            }while(1);
+
+            //Set
+            posBloc[0].x = pos.x; posBloc[0].y = pos.y;
+            posBloc[1].x = pos.x; posBloc[1].y = pos.y;
             data[pos.x][pos.y] = name;
+            switch(rotation)
+            {
+                case 0:
+                    //Vertical Up
+                    posBloc[0].x = pos.x-1;
+                    posBloc[1].x = pos.x-2;
+                    data[pos.x-1][pos.y] = name; data[pos.x-2][pos.y] = name;
+                    break;
+                case 1:
+                    //Vertical Down
+                    posBloc[0].x = pos.x+1;
+                    posBloc[1].x = pos.x+2;
+                    data[pos.x+1][pos.y] = name; data[pos.x+2][pos.y] = name;
+                    break;
+                case 2:
+                    //Horizontal Right
+                    posBloc[0].y = pos.y+1;
+                    posBloc[1].y = pos.y+2;
+                    data[pos.x][pos.y+1] = name; data[pos.x][pos.y+2] = name;
+                    break;
+                case 3:
+                    //Horizontal Left
+                    posBloc[0].y = pos.y-1;
+                    posBloc[1].y = pos.y-2;
+                    data[pos.x][pos.y-1] = name; data[pos.x][pos.y-2] = name;
+                    break;
+                case 4:
+                    //Diagonal Up
+                    posBloc[0].x = pos.x-1; posBloc[0].y = pos.y-1;
+                    posBloc[1].x = pos.x-2; posBloc[1].y = pos.y-2;
+                    data[pos.x-1][pos.y-1] = name; data[pos.x-2][pos.y-2] = name;
+                    break;
+                case 5:
+                    //Diagonal Down
+                    posBloc[0].x = pos.x+1; posBloc[0].y = pos.y+1;
+                    posBloc[1].x = pos.x+2; posBloc[1].y = pos.y+2;
+                    data[pos.x+1][pos.y+1] = name; data[pos.x+2][pos.y+2] = name;
+                    break;
+                case 6:
+                    //Diagonal Reverse Down
+                    posBloc[0].x = pos.x+1; posBloc[0].y = pos.y-1;
+                    posBloc[1].x = pos.x+2; posBloc[1].y = pos.y-2;
+                    data[pos.x+1][pos.y-1] = name; data[pos.x+2][pos.y-2] = name;
+                    break;
+                case 7:
+                    //Diagonal Reverse Up
+                    posBloc[0].x = pos.x-1; posBloc[0].y = pos.y+1;
+                    posBloc[1].x = pos.x-2; posBloc[1].y = pos.y+2;
+                    data[pos.x-1][pos.y+1] = name; data[pos.x-2][pos.y+2] = name;
+                    break;
+            }
+
+            //make the bloc next to the navire inavailable to put other navire in them
+            //first bloc
+            //3 top
+            if(data[pos.x-1][pos.y] == ' ' && pos.x>0) data[pos.x-1][pos.y] = '#';
+            if(data[pos.x-1][pos.y-1] == ' ' && pos.x>0 && pos.y>0) data[pos.x-1][pos.y-1] = '#';
+            if(data[pos.x-1][pos.y+1] == ' ' && pos.x>0 && pos.y<5) data[pos.x-1][pos.y+1] = '#';
+            //left right
+            if(data[pos.x][pos.y-1] == ' ' && pos.y>0) data[pos.x][pos.y-1] = '#';
+            if(data[pos.x][pos.y+1] == ' ' && pos.y<5) data[pos.x][pos.y+1] = '#';
+            //3bottom
+            if(data[pos.x+1][pos.y] == ' ' && pos.x<5) data[pos.x+1][pos.y] = '#';
+            if(data[pos.x+1][pos.y-1] == ' ' && pos.x<5 && pos.y>0) data[pos.x+1][pos.y-1] = '#';
+            if(data[pos.x+1][pos.y+1] == ' ' && pos.x<5 && pos.y<5) data[pos.x+1][pos.y+1] = '#';
+
+            for(int k=0; k<2; k++)
+            {
+                //second n third bloc
+                //3 top
+                if(data[posBloc[k].x-1][posBloc[k].y] == ' ' && posBloc[k].x>0) data[posBloc[k].x-1][posBloc[k].y] = '#';
+                if(data[posBloc[k].x-1][posBloc[k].y-1] == ' ' && posBloc[k].x>0 && posBloc[k].y>0) data[posBloc[k].x-1][posBloc[k].y-1] = '#';
+                if(data[posBloc[k].x-1][posBloc[k].y+1] == ' ' && posBloc[k].x>0 && posBloc[k].y<5) data[posBloc[k].x-1][posBloc[k].y+1] = '#';
+                //left right
+                if(data[posBloc[k].x][posBloc[k].y-1] == ' ' && posBloc[k].y>0) data[posBloc[k].x][posBloc[k].y-1] = '#';
+                if(data[posBloc[k].x][posBloc[k].y+1] == ' ' && posBloc[k].y<5) data[posBloc[k].x][posBloc[k].y+1] = '#';
+                //3bottom
+                if(data[posBloc[k].x+1][posBloc[k].y] == ' ' && posBloc[k].x<5) data[posBloc[k].x+1][posBloc[k].y] = '#';
+                if(data[posBloc[k].x+1][posBloc[k].y-1] == ' ' && posBloc[k].x<5 && posBloc[k].y>0) data[posBloc[k].x+1][posBloc[k].y-1] = '#';
+                if(data[posBloc[k].x+1][posBloc[k].y+1] == ' ' && posBloc[k].x<5 && posBloc[k].y<5) data[posBloc[k].x+1][posBloc[k].y+1] = '#';
+            }
+            
             break;
         }
         else
         {
-            printf("\nThe ship block is occupied!\n");
+            if(data[pos.x][pos.y] == '#') printf("\nYou can't set navy close to other navy\n");
+            else printf("\nThe ship block is occupied!\n");
             getch();
         }
     }while(1);
@@ -246,7 +368,7 @@ int MissileLauncher(int x, int y, int nbrCases)
 
     if(data2[x][y] == ' ')
     {
-        if(data[x][y] == ' ') data2[x][y] = 'X';
+        if(data[x][y] == ' ' || data[x][y] == '#') data2[x][y] = 'X';
         else
         {
             data2[x][y] = data[x][y]; hits++;
