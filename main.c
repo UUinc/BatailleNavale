@@ -20,8 +20,8 @@ typedef struct
 typedef struct
 {
     char name[20];
-    int missiles;
     int time;
+    int score;
 }Winner;
 
 //Function Declaration
@@ -37,8 +37,8 @@ void SetShip(char name);
 //Player 2
 void Player2();
 int MissileLauncher(int x, int y, int nbrCases);
-void SetWinner(void);
-void GetWinner(void);
+void SetScore(void);
+void GetScore(void);
 //How To Play
 void HowToPlay(void);
 //Settings
@@ -53,8 +53,10 @@ void DeleteBlankSpaces(char *s);
 //Global
 GameTime gameTime;
 Winner player2;
+
 int darkMode=0; //0 = off - 1 = on
 char data[6][6], data2[6][6];
+int scoreMissile=36;
 
 int main()
 {
@@ -79,6 +81,8 @@ int main()
             case 1:
                 Player1();
                 Player2();
+                SetScore();
+                GetScore();
                 break;
             case 2: HowToPlay(); break;
             case 3: Settings(); break;
@@ -353,6 +357,7 @@ void SetShip(char name)
 void Player2()
 {
     position pos;
+    gameTime.start = time(&gameTime.start);
     do
     {
         system("cls");
@@ -370,32 +375,42 @@ int MissileLauncher(int x, int y, int nbrCases)
 
     if(data2[x][y] == ' ')
     {
-        if(data[x][y] == ' ' || data[x][y] == '#') data2[x][y] = 'X';
+        if(data[x][y] == ' ' || data[x][y] == '#')
+        {
+            data2[x][y] = 'X';
+            //Score
+            scoreMissile--; 
+        }
         else
         {
             data2[x][y] = data[x][y]; hits++;
+            //Score
+            player2.score += scoreMissile;
+		    scoreMissile = 36;
         }
     }
     else{ printf("\nThe Box already striked!\n"); getch();}
 
     return hits >= nbrCases ? 1 : 0;
 }
-void SetWinner()
+void SetScore()
 {
+    gameTime.end = time(&gameTime.end);
+    player2.time = difftime(gameTime.end,gameTime.start);
+
+    if(player2.time < 1) player2.time += 100;
+    else if(player2.time >= 1 && player2.time < 2) player2.score += 75;
+    else if(player2.time >= 2 && player2.time < 3) player2.score += 50;
+    else if (player2.time >= 3 && player2.time < 4) player2.score += 25;
+    else if(player2.time >= 4 && player2.time < 5) player2.score += 5;
+
     printf("\n****** Player 2 ******\n\n");
-    printf("    Your Name : "); fflush(stdin); gets(player2.name);
+    printf("\tYour Name : "); fflush(stdin); gets(player2.name);
 }
-void GetWinner()
+void GetScore()
 {
-    float score;
-
-    //player2.time = difftime(gameTime.end,gameTime.start);
-    score = player2.time > player2.missiles ? (float)player2.missiles / (float)player2.time : (float)player2.time / (float)player2.missiles;
-    score *= 100; score = score<1 ? 1 : 0;
-
     printf("\n****** Score ******\n\n");
-    printf("    Name  : %s\n",player2.name);
-    printf("    Score : %.0f\n",score);
+    printf("\t%s : %d\n",player2.name, player2.score);
 }
 //How To Play Functions Definition
 void HowToPlay()
