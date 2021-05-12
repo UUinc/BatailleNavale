@@ -47,7 +47,7 @@ void DarkMode(int on);
 //Tools
 void InitData(char str[][6],int len,char c);
 void GetCoordinate(int *x, int *y);
-int CoordinateConverter(int *x, int *y, char v[]);
+int CoordinateConverter(int *x, int *y, char *v);
 void DeleteBlankSpaces(char *s);
 
 //Global
@@ -77,13 +77,8 @@ int main()
         switch(result)
         {
             case 1:
-                // //Player 1 funtion here ...
                 Player1();
-                // //Player 2
-                // gameTime.start = time(0);
-                // Player2 function here ...
                 Player2();
-                // gameTime.end = time(0);
                 break;
             case 2: HowToPlay(); break;
             case 3: Settings(); break;
@@ -129,7 +124,6 @@ int Menu()
 {
     int choice, error;
 
-    printf("Menu :\n\n");
     printf("1.Play\n");
     printf("2.How To Play\n");
     printf("3.Settings\n");
@@ -218,7 +212,7 @@ void SetShip(char name)
         GetCoordinate(&pos.x,&pos.y);
         if(data[pos.x][pos.y] == ' ')
         {
-            int available[8]={-1}; int i=0;
+            int available[8]={-1}; int i=0,j;
             do
             {
                 printf("Rotation :\n");
@@ -244,11 +238,19 @@ void SetShip(char name)
                     printf("\x1b[1F\x1b[2Kimpossible to set a navy here\n");
                     goto GetCoord;
                 }
-                printf("choice : "); scanf("%d",&rotation);
+                j = i;
+                do {
+                    getRotation:
+                    fflush(stdin);
+                    printf("choice : ");
+                    if(scanf("%d",&rotation)) break;
+                    printf("Error! rotation incorrect\n");
+                }while(1);
                 //check if the rotation selected is available
-                for(;i>0;i--) if(rotation == available[i-1]) break;
+                for(i=j;i>0;i--) if(rotation == available[i-1]) break;
                 if(i) break; i = 0;
                 printf("Error! rotation incorrect\n");
+                goto getRotation;
             }while(1);
 
             //Set
@@ -343,7 +345,7 @@ void SetShip(char name)
         {
             if(data[pos.x][pos.y] == '#') printf("\nYou can't set navy close to other navy\n");
             else printf("\nThe ship block is occupied!\n");
-            getch();
+            //getch();
         }
     }while(1);
 }
@@ -436,7 +438,7 @@ void InitData(char str[][6],int len,char c)
 }
 void GetCoordinate(int *x, int *y)
 {
-    char coordinate[2];
+    char *coordinate = (char *) malloc(sizeof(char));
     do
     {
         printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
@@ -444,7 +446,7 @@ void GetCoordinate(int *x, int *y)
         printf("Incorrect Coordinate! (ex: A4)\n");
     }while(1);
 }
-int CoordinateConverter(int *x, int *y, char v[])
+int CoordinateConverter(int *x, int *y, char *v)
 {
     int len;
     DeleteBlankSpaces(v); len = strlen(v);

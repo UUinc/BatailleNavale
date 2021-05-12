@@ -1,2 +1,4 @@
-printf("Player 1\n\n");
-    DisplayGrid(0);
+fflush(stdin);
+                printf("choice : "); 
+                if(scanf("%d",&rotation)) break;
+                printf("Error! rotation Incorrect\n");
