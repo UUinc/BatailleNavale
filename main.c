@@ -80,6 +80,8 @@ int main()
         {
             case 1:
                 Player1();
+                printf("\nShips are placed!\n");
+                getch();
                 Player2();
                 SetScore();
                 GetScore();
@@ -197,12 +199,12 @@ void Player1()
     for(i=0; i<3; i++)
     {
         system("cls");
-        printf("Player 1\n\n");
+        printf("Player 1 (place the ships)\n\n");
         DisplayGrid(0);
         SetShip(navire[i]);
     }
     system("cls");
-    printf("Player 1\n\n");
+    printf("Player 1 (place the ships)\n\n");
     DisplayGrid(0);
 }
 void SetShip(char name)
@@ -361,12 +363,12 @@ void Player2()
     do
     {
         system("cls");
-        printf("Player 2\n\n");
+        printf("Player 2 (destroy the ships)\n\n");
         DisplayGrid(1);
         GetCoordinate(&pos.x,&pos.y);
     } while (!MissileLauncher(pos.x,pos.y,9));
     system("cls");
-    printf("Player 2\n\n");
+    printf("Player 2 (destroy the ships)\n\n");
     DisplayGrid(1);
 }
 int MissileLauncher(int x, int y, int nbrCases)
@@ -405,12 +407,12 @@ void SetScore()
     else if(player2.time >= 4 && player2.time < 5) player2.score += 5;
 
     printf("\n****** Player 2 ******\n\n");
-    printf("\tYour Name : "); fflush(stdin); gets(player2.name);
+    printf("    Your Name : "); fflush(stdin); gets(player2.name);
 }
 void GetScore()
 {
     printf("\n****** Score ******\n\n");
-    printf("\t%s : %d\n",player2.name, player2.score);
+    printf("    %s : %d\n",player2.name, player2.score);
 }
 //How To Play Functions Definition
 void HowToPlay()
