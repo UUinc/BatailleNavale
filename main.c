@@ -26,16 +26,16 @@ typedef struct
 
 //Function Declaration
 //UI
-void Title();
-void TitleAscii();
-void BoatAscii();
+void Title(void);
+void TitleAscii(void);
+void BoatAscii(void);
 int Menu(void);
 void DisplayGrid(int choice);
 //Player 1
-void Player1();
+void Player1(void);
 void SetShip(char name);
 //Player 2
-void Player2();
+void Player2(void);
 int MissileLauncher(int x, int y, int nbrCases);
 void SetScore(void);
 void GetScore(void);
@@ -193,7 +193,7 @@ void DisplayGrid(int choice)
 // Player 1 functions Definition
 void Player1()
 {
-    int i,j;
+    int i;
     char navire[3]={'A','B','C'};
 
     for(i=0; i<3; i++)
@@ -254,7 +254,7 @@ void SetShip(char name)
                 }while(1);
                 //check if the rotation selected is available
                 for(i=j;i>0;i--) if(rotation == available[i-1]) break;
-                if(i) break; i = 0;
+                if(i) break;
                 printf("Error! rotation incorrect\n");
                 goto getRotation;
             }while(1);
