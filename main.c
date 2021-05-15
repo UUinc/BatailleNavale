@@ -110,25 +110,25 @@ void Title()
 }
 void TitleAscii()
 {
-    printf("___  ____ ___ ____ _ _    _    ____    _  _ ____ _  _ ____ _    ____\n");
-    printf("|__] |__|  |  |__| | |    |    |___    |\\ | |__| |  | |__| |    |___\n");
-    printf("|__] |  |  |  |  | | |___ |___ |___    | \\| |  |  \\/  |  | |___ |___\n\n\n");
+    gotoXY(15,0);printf("___  ____ ___ ____ _ _    _    ____    _  _ ____ _  _ ____ _    ____\n");
+    gotoXY(15,1);printf("|__] |__|  |  |__| | |    |    |___    |\\ | |__| |  | |__| |    |___\n");
+    gotoXY(15,2);printf("|__] |  |  |  |  | | |___ |___ |___    | \\| |  |  \\/  |  | |___ |___\n\n\n");
 }
 void BoatAscii()
 {
-    textcolor(BROWN);printf("              |    |    |\n");
-    textcolor(WHITE);printf("             )_)  )_)  )_)\n");
-    printf("            )___))___))___)");
+    gotoXY(30,4);textcolor(BROWN);printf("              |    |    |\n");
+    gotoXY(30,5);textcolor(WHITE);printf("             )_)  )_)  )_)\n");
+    gotoXY(30,6);printf("            )___))___))___)");
     textcolor(BROWN);printf("\\\n");
-    textcolor(WHITE);printf("           )____)____)_____)");
+    gotoXY(30,7);textcolor(WHITE);printf("           )____)____)_____)");
     textcolor(BROWN);printf("\\\\\n");
-    textcolor(BROWN);printf("         _____|____|____|____\\\\\\__\n");
-    textcolor(WHITE); printf("---------");
+    gotoXY(30,8);textcolor(BROWN);printf("         _____|____|____|____\\\\\\__\n");
+    gotoXY(30,9);textcolor(WHITE); printf("---------");
     textcolor(BROWN);printf("\\___________________/");
     textcolor(WHITE);printf("---------\n");
-    printf("  ^^^^^ ^^^^^^^^^^^^^^^^^^^^^\n");
-    printf("    ^^^^      ^^^^     ^^^    ^^\n");
-    printf("         ^^^^      ^^^\n\n");
+    gotoXY(30,10);printf("  ^^^^^ ^^^^^^^^^^^^^^^^^^^^^\n");
+    gotoXY(30,11);printf("    ^^^^      ^^^^     ^^^    ^^\n");
+    gotoXY(30,12);printf("         ^^^^      ^^^\n\n\n");
     textcolor(WHITE);
 }
 //Display a Menu to let the user choose what to do
@@ -136,19 +136,27 @@ int Menu()
 {
     int choice, error;
 
-    printf("1.Play\n");
-    printf("2.How To Play\n");
-    printf("3.Settings\n");
-    printf("0.Exit\n");
+    gotoXY(45,15);printf("1.Play\n");
+    gotoXY(45,16);printf("2.How To Play\n");
+    gotoXY(45,17);printf("3.Settings\n");
+    gotoXY(45,18);printf("0.Exit\n");
 
     do
     {
-        printf("\nChoice : ");
+        gotoXY(42,20);
+        printf("\x1b[2K");//wipe the line
+        printf("Choice : ");
         fflush(stdin);
         error = !scanf("%d",&choice);
         error = error || choice > 3 || choice < 0 ? 1 : 0;
+        
         if(error)
-            printf("choice incorrect!\n");
+        {
+            gotoXY(40,21);textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
+            Sleep(1000);
+            //wipe the line
+            printf("\x1b[2K");
+        }
     } while (error);
 
     return choice;
