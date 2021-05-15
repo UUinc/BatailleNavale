@@ -181,9 +181,9 @@ void DisplayGrid(int choice)
     }
 
     //Display Grid
-    for(i=0,k=0; i<14; i++)
+    for(i=0; i<14; i++)
     {
-        for(j=0,l=0; j<26; j++)
+        for(j=0; j<26; j++)
         {
             printf("%c",grid[i][j]);
         }
@@ -218,7 +218,7 @@ void SetShip(char name)
         GetCoordinate(&pos.x,&pos.y);
         if(data[pos.x][pos.y] == ' ')
         {
-            int available[8]={-1}; int i=0,j;
+            int available[8]={-1}; int i=0,j,k;
             do
             {
                 printf("Rotation :\n");
@@ -329,7 +329,7 @@ void SetShip(char name)
             if(data[pos.x+1][pos.y-1] == ' ' && pos.x<5 && pos.y>0) data[pos.x+1][pos.y-1] = '#';
             if(data[pos.x+1][pos.y+1] == ' ' && pos.x<5 && pos.y<5) data[pos.x+1][pos.y+1] = '#';
 
-            for(int k=0; k<2; k++)
+            for(k=0; k<2; k++)
             {
                 //second n third bloc
                 //3 top
@@ -460,7 +460,7 @@ void GetCoordinate(int *x, int *y)
     {
         printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
         if(CoordinateConverter(x,y,coordinate)) break;
-        printf("Incorrect Coordinate! (ex: A4)\n");
+        printf("Incorrect Coordinate! (ex: A1)\n");
     }while(1);
 }
 int CoordinateConverter(int *x, int *y, char *v)
