@@ -49,6 +49,7 @@ void InitData(char str[][6],int len,char c);
 void GetCoordinate(int *x, int *y);
 int CoordinateConverter(int *x, int *y, char *v);
 void DeleteBlankSpaces(char *s);
+void MaximizeOutputWindow(void);
 
 //Global
 GameTime gameTime;
@@ -61,6 +62,11 @@ int scoreMissile=36;
 int main()
 {
     int result;
+    
+    //Maximize Application in Start
+    MaximizeOutputWindow();
+    //Game Main Title
+    system("title Bataille Navale");
 
     //Initialize string by spaces
     InitData(data,6,' ');
@@ -492,4 +498,9 @@ void DeleteBlankSpaces(char *s)
 		  k++; i--;
 	    }
     }
+}
+void MaximizeOutputWindow(void)
+{
+    HWND consoleWindow = GetConsoleWindow(); // This gets the value Windows uses to identify your output window 
+    ShowWindow(consoleWindow, SW_MAXIMIZE); // this mimics clicking on its' maximize button
 }
