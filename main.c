@@ -31,12 +31,12 @@ void TitleAscii(void);
 void BoatAscii(void);
 int Menu(void);
 void DisplayGrid(int choice, int posX);
-//Player 1
-void Player1(void);
-void SetShip(char name);
-//Player 2
-void Player2(void);
-int MissileLauncher(int x, int y, int nbrCases);
+//Ships Placing
+void PlaceShips(int player);
+void SetShip(char name, char data[][6]);
+//Ships Destroying
+void DestroyShips(int player);
+int MissileLauncher(int x, int y, int nbrCases, int player);
 void SetScore(void);
 void GetScore(void);
 //How To Play
@@ -53,10 +53,11 @@ void MaximizeOutputWindow(void);
 
 //Global
 GameTime gameTime;
-Winner player2;
+Winner Player;
 
 int darkMode=0; //0 = off - 1 = on
-char data[6][6], data2[6][6];
+char dataShip[6][6], dataMissile[6][6];
+char dataShip2[6][6], dataMissile2[6][6];
 int scoreMissile=36;
 
 int main()
@@ -82,18 +83,27 @@ int main()
         {
             case 1:
                 //Initialize string by spaces
-                InitData(data,6,' ');
-                InitData(data2,6,' ');
+                InitData(dataShip,6,' ');
+                InitData(dataMissile,6,' ');
                 //Initialize score
-                player2.score = 0;
-                Player1();
+                Player.score = 0;
+                PlaceShips(0);
                 getch();
-                Player2();
+                DestroyShips(0);
                 SetScore();
                 GetScore();
                 break;
-            case 2: HowToPlay(); break;
-            case 3: Settings(); break;
+            case 2:  
+                //Initialize string by spaces
+                InitData(dataShip,6,' ');
+                InitData(dataMissile,6,' ');
+                InitData(dataShip2,6,' ');
+                InitData(dataMissile2,6,' ');
+                break;
+            case 3: HowToPlay(); break;
+            case 4: /*Highscore();*/printf("Highscore\n"); break;
+            case 5: Settings(); break;
+            case 6: /*Info();*/printf("Info\n"); break;
             case 0: exit(0);
         }
         getch();
@@ -136,33 +146,33 @@ int Menu()
 {
     int choice, error;
 
-    gotoXY(45,15);printf("1.Play\n");
-    gotoXY(45,16);printf("2.How To Play\n");
-    gotoXY(45,17);printf("3.Settings\n");
-    gotoXY(45,18);printf("0.Exit\n");
+    gotoXY(43,wherey());printf("1.Play Classic\n");
+    gotoXY(43,wherey());printf("2.Play Extended\n");
+    gotoXY(43,wherey());printf("3.How To Play\n");
+    gotoXY(43,wherey());printf("4.Highscore\n");
+    gotoXY(43,wherey());printf("5.Settings\n");
+    gotoXY(43,wherey());printf("6.Info\n");
+    gotoXY(43,wherey());printf("0.Exit\n");
 
     do
     {
-        gotoXY(43,20);
-        printf("\x1b[2K");//wipe the line
+        gotoXY(42,wherey()+1);
         printf("Choice : ");
         fflush(stdin);
         error = !scanf("%d",&choice);
-        error = error || choice > 3 || choice < 0 ? 1 : 0;
+        error = error || choice > 6 || choice < 0 ? 1 : 0;
         
         if(error)
         {
-            gotoXY(41,21);textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
-            delay(1000);
-            //wipe the line
-            printf("\x1b[2K");
+            gotoXY(40,wherey());textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
+            delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
         }
     } while (error);
 
     return choice;
 }
 //Display Matrix 6 x 6
-//choice (0==data, 1==data2)
+//choice (0==dataShip, 1==dataMissile, 2==dataShip2, 3==dataMissile2)
 void DisplayGrid(int choice, int posX)
 {
     int i, j, k, l;
@@ -186,11 +196,21 @@ void DisplayGrid(int choice, int posX)
     {
         for(j=3,l=0;j<26;j+=4,l++)
         {
-            if(!choice)
+            switch(choice)
             {
-                grid[i][j] = data[k][l] != '#' ? data[k][l] : ' ';
+                case 0: 
+                    grid[i][j] = dataShip[k][l] != '#' ? dataShip[k][l] : ' ';
+                    break;
+                case 1: 
+                    grid[i][j] = dataMissile[k][l];
+                    break;
+                case 2: 
+                    grid[i][j] = dataShip2[k][l] != '#' ? dataShip2[k][l] : ' ';
+                    break;
+                case 3: 
+                    grid[i][j] = dataMissile2[k][l];
+                    break;
             }
-            else  grid[i][j] = data2[k][l];
         }
     }
 
@@ -206,7 +226,7 @@ void DisplayGrid(int choice, int posX)
     }
 }
 // Player 1 functions Definition
-void Player1()
+void PlaceShips(int player)
 {
     int i;
     char navire[3]={'A','B','C'};
@@ -214,16 +234,17 @@ void Player1()
     for(i=0; i<3; i++)
     {
         system("cls");
-        gotoXY(37,wherey());printf("Player 1 (place the ships)\n\n");
+        gotoXY(37,wherey());printf("(place the ships)\n\n");
         DisplayGrid(0,37);
-        SetShip(navire[i]);
+        if(player == 0) SetShip(navire[i], dataShip);
+        else SetShip(navire[i], dataShip2);
     }
     system("cls");
     gotoXY(42,wherey()); textcolor(LIGHTGREEN); printf("Ships are placed!\n\n"); textcolor(WHITE);
     DisplayGrid(0,37);
     gotoXY(44,wherey()); printf("Click Any Key!\n");
 }
-void SetShip(char name)
+void SetShip(char name, char data[][6])
 {
     position pos;
     position posBloc[2];
@@ -268,13 +289,13 @@ void SetShip(char name)
                     gotoXY(40,wherey()+1); printf("choice : ");
                     if(scanf("%d",&rotation)) break;
                     textcolor(RED); gotoXY(38,wherey()); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
-                    delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
+                    delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
                 }while(1);
                 //check if the rotation selected is available
                 for(i=j;i>0;i--) if(rotation == available[i-1]) break;
                 if(i) break;
                 textcolor(RED); gotoXY(38,wherey()); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
-                delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
+                delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
                 goto getRotation;
             }while(1);
 
@@ -382,65 +403,111 @@ void SetShip(char name)
     }while(1);
 }
 // Player 2 functions Definition
-void Player2()
+void DestroyShips(int player)
 {
     position pos;
     gameTime.start = time(&gameTime.start);
     do
     {
         system("cls");
-        gotoXY(37,wherey());printf("Player 2 (destroy the ships)\n\n");
+        gotoXY(40,wherey());printf("(destroy the ships)\n\n");
         DisplayGrid(1,37);
         gotoXY(37,wherey());GetCoordinate(&pos.x,&pos.y);
-    } while (!MissileLauncher(pos.x,pos.y,9));
+    } while (!MissileLauncher(pos.x,pos.y,9,player));
     system("cls");
     gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("Good Job!\n\n"); textcolor(WHITE);
     DisplayGrid(1,37);
 }
-int MissileLauncher(int x, int y, int nbrCases)
+int MissileLauncher(int x, int y, int nbrCases, int player)
 {
-    static int hits=0;
+    static int hits=0, hits2=0;
 
-    if(hits >= nbrCases) hits = 0;
-
-    if(data2[x][y] == ' ')
+    if(player == 0)
     {
-        if(data[x][y] == ' ' || data[x][y] == '#')
+        if(dataMissile[x][y] == ' ')
         {
-            data2[x][y] = 'X';
-            //Score
-            scoreMissile-= 10; 
+            if(dataShip[x][y] == ' ' || dataShip[x][y] == '#')
+            {
+                dataMissile[x][y] = 'X';
+                //Score
+                scoreMissile-= 10; 
+            }
+            else
+            {
+                hits++;
+                dataMissile[x][y] = dataShip[x][y];
+                //Score
+                Player.score += scoreMissile;
+                scoreMissile = 36;
+            }
         }
         else
         {
-            data2[x][y] = data[x][y]; hits++;
-            //Score
-            player2.score += scoreMissile;
-		    scoreMissile = 36;
+            textcolor(RED);
+            gotoXY(38,wherey()+1);
+            printf("\aThe Box already striked!\n");
+            textcolor(WHITE);
+            delay(1000);
+        }
+        if(hits >= nbrCases)
+        {
+            hits = 0;
+            return 1;
         }
     }
-    else{ textcolor(RED); gotoXY(38,wherey()+1); printf("\aThe Box already striked!\n"); textcolor(WHITE); delay(1000);}
-
-    return hits >= nbrCases ? 1 : 0;
+    else
+    {
+        if(dataMissile2[x][y] == ' ')
+        {
+            if(dataShip2[x][y] == ' ' || dataShip2[x][y] == '#')
+            {
+                dataMissile2[x][y] = 'X';
+                //Score
+                scoreMissile-= 10; 
+            }
+            else
+            {
+                hits2++;
+                dataMissile2[x][y] = dataShip2[x][y];
+                //Score
+                Player.score += scoreMissile;
+                scoreMissile = 36;
+            }
+        }
+        else
+        {
+            textcolor(RED);
+            gotoXY(38,wherey()+1);
+            printf("\aThe Box already striked!\n");
+            textcolor(WHITE);
+            delay(1000);
+        }
+        if(hits2 >= nbrCases)
+        {
+            hits2 = 0;
+            return 1;
+        }
+    }
+    return 0;
 }
 void SetScore()
 {
     gameTime.end = time(&gameTime.end);
-    player2.time = difftime(gameTime.end,gameTime.start);
+    Player.time = difftime(gameTime.end,gameTime.start);
 
-    if(player2.time < 10) player2.time += 100;
-    else if(player2.time < 30) player2.score += 75;
-    else if(player2.time < 60) player2.score += 50;
-    else if(player2.time < 100) player2.score += 25;
-    else player2.score += 5;
+    if(Player.time < 10) Player.time += 100;
+    else if(Player.time < 30) Player.score += 75;
+    else if(Player.time < 60) Player.score += 50;
+    else if(Player.time < 100) Player.score += 25;
+    else Player.score += 5;
 
     delay(300);
     gotoXY(40,wherey());printf("****** Player 2 ******\n\n");
     while(1)
     {
-        gotoXY(40,wherey());printf("    Nickname : "); fflush(stdin); gets(player2.name);
-        DeleteBlankSpaces(player2.name);
-        if(strcmp(player2.name,"")!=0) break;
+        gotoXY(40,wherey());printf("    Nickname : "); fflush(stdin); gets(Player.name);
+        DeleteBlankSpaces(Player.name);
+        if(strcmp(Player.name,"")!=0) break;
         textcolor(RED); gotoXY(32, wherey()+1); printf("\aError! please enter a valid nickname\n"); textcolor(WHITE);
         delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
     }
@@ -449,7 +516,7 @@ void GetScore()
 {
     delay(500); clrscr();
     gotoXY(40,wherey());printf("****** Scores ******\n\n");
-    gotoXY(40,wherey());printf("    %s : %d\n",player2.name, player2.score);
+    gotoXY(40,wherey());printf("    %s : %d\n",Player.name, Player.score);
     //Add other score from local DB
     //here...
     printf("\n\n");
