@@ -68,10 +68,6 @@ int main()
     //Game Main Title
     system("title Bataille Navale");
 
-    //Initialize string by spaces
-    InitData(data,6,' ');
-    InitData(data2,6,' ');
-
     //Game Background Color
     textcolor(WHITE);
     
@@ -85,8 +81,12 @@ int main()
         switch(result)
         {
             case 1:
+                //Initialize string by spaces
+                InitData(data,6,' ');
+                InitData(data2,6,' ');
+                //Initialize score
+                player2.score = 0;
                 Player1();
-                printf("\nShips are placed!\n");
                 getch();
                 Player2();
                 SetScore();
@@ -143,7 +143,7 @@ int Menu()
 
     do
     {
-        gotoXY(42,20);
+        gotoXY(43,20);
         printf("\x1b[2K");//wipe the line
         printf("Choice : ");
         fflush(stdin);
@@ -152,7 +152,7 @@ int Menu()
         
         if(error)
         {
-            gotoXY(40,21);textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
+            gotoXY(41,21);textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
             delay(1000);
             //wipe the line
             printf("\x1b[2K");
@@ -214,13 +214,14 @@ void Player1()
     for(i=0; i<3; i++)
     {
         system("cls");
-        gotoXY(36,wherey());printf("Player 1 (place the ships)\n\n");
-        DisplayGrid(0,36);
-        gotoXY(36,wherey());SetShip(navire[i]);
+        gotoXY(37,wherey());printf("Player 1 (place the ships)\n\n");
+        DisplayGrid(0,37);
+        SetShip(navire[i]);
     }
     system("cls");
-    gotoXY(36,wherey());printf("Player 1 (place the ships)\n\n");
-    DisplayGrid(0,36);
+    gotoXY(42,wherey()); textcolor(LIGHTGREEN); printf("Ships are placed!\n\n"); textcolor(WHITE);
+    DisplayGrid(0,37);
+    gotoXY(44,wherey()); printf("Click Any Key!\n");
 }
 void SetShip(char name)
 {
@@ -236,41 +237,44 @@ void SetShip(char name)
             int available[8]={-1}; int i=0,j,k;
             do
             {
-                printf("Rotation :\n");
+                gotoXY(40,wherey()+1); printf("Rotation :\n");
                 //Vertical Up
-                if(pos.x>=2 && data[pos.x-1][pos.y] == ' ' && data[pos.x-2][pos.y] == ' '){ printf(" 0.Vertical Up\n"); available[i++]=0;}
+                if(pos.x>=2 && data[pos.x-1][pos.y] == ' ' && data[pos.x-2][pos.y] == ' '){gotoXY(40,wherey()); printf(" 0.Vertical Up\n"); available[i++]=0;}
                 //Vertical Down
-                if(pos.x<4 && data[pos.x+1][pos.y] == ' ' && data[pos.x+2][pos.y] == ' '){ printf(" 1.Vertical Down\n"); available[i++]=1;}
+                if(pos.x<4 && data[pos.x+1][pos.y] == ' ' && data[pos.x+2][pos.y] == ' '){gotoXY(40,wherey()); printf(" 1.Vertical Down\n"); available[i++]=1;}
                 //Horizontal Right
-                if(pos.y<4 && data[pos.x][pos.y+1] == ' ' && data[pos.x][pos.y+2] == ' '){ printf(" 2.Horizontal Right\n"); available[i++]=2;}
+                if(pos.y<4 && data[pos.x][pos.y+1] == ' ' && data[pos.x][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 2.Horizontal Right\n"); available[i++]=2;}
                 //Horizontal Left
-                if(pos.y>=2 && data[pos.x][pos.y-1] == ' ' && data[pos.x][pos.y-2] == ' '){ printf(" 3.Horizontal Left\n"); available[i++]=3;}
+                if(pos.y>=2 && data[pos.x][pos.y-1] == ' ' && data[pos.x][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 3.Horizontal Left\n"); available[i++]=3;}
                 //Diagonal Up
-                if(pos.x>=2 && pos.y>=2 && data[pos.x-1][pos.y-1] == ' ' && data[pos.x-2][pos.y-2] == ' '){ printf(" 4.Diagonal Up\n"); available[i++]=4;}
+                if(pos.x>=2 && pos.y>=2 && data[pos.x-1][pos.y-1] == ' ' && data[pos.x-2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 4.Diagonal Up\n"); available[i++]=4;}
                 //Diagonal Down
-                if(pos.x<4 && pos.y<4 && data[pos.x+1][pos.y+1] == ' ' && data[pos.x+2][pos.y+2] == ' '){ printf(" 5.Diagonal Down\n"); available[i++]=5;}
+                if(pos.x<4 && pos.y<4 && data[pos.x+1][pos.y+1] == ' ' && data[pos.x+2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 5.Diagonal Down\n"); available[i++]=5;}
                 //Diagonal Reverse Down
-                if(pos.x<4 && pos.y>=2 && data[pos.x+1][pos.y-1] == ' ' && data[pos.x+2][pos.y-2] == ' '){ printf(" 6.Diagonal Reverse Down\n"); available[i++]=6;}
+                if(pos.x<4 && pos.y>=2 && data[pos.x+1][pos.y-1] == ' ' && data[pos.x+2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 6.Diagonal Reverse Down\n"); available[i++]=6;}
                 //Diagonal Reverse Up
-                if(pos.x>=2 && pos.y<4 && data[pos.x-1][pos.y+1] == ' ' && data[pos.x-2][pos.y+2] == ' '){ printf(" 7.Diagonal Reverse Up\n"); available[i++]=7;}
+                if(pos.x>=2 && pos.y<4 && data[pos.x-1][pos.y+1] == ' ' && data[pos.x-2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 7.Diagonal Reverse Up\n"); available[i++]=7;}
                 if(available[0] == -1)
                 {
                     // Move to beginning of previous line and Clear entire line
-                    textcolor(RED); printf("\x1b[1F\x1b[2K\aimpossible to set a navy here\n"); textcolor(WHITE);
+                    textcolor(RED); gotoXY(34,wherey()); printf("\x1b[1F\x1b[2K\aimpossible to set a navy here\n"); textcolor(WHITE);
+                    delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
                     goto GetCoord;
                 }
                 j = i;
                 do {
                     getRotation:
                     fflush(stdin);
-                    printf("choice : ");
+                    gotoXY(40,wherey()+1); printf("choice : ");
                     if(scanf("%d",&rotation)) break;
-                    textcolor(RED); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
+                    textcolor(RED); gotoXY(38,wherey()); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
+                    delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
                 }while(1);
                 //check if the rotation selected is available
                 for(i=j;i>0;i--) if(rotation == available[i-1]) break;
                 if(i) break;
-                textcolor(RED); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
+                textcolor(RED); gotoXY(38,wherey()); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
+                delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
                 goto getRotation;
             }while(1);
 
@@ -366,11 +370,13 @@ void SetShip(char name)
         {
             if(data[pos.x][pos.y] == '#')
             {
-                textcolor(RED); printf("\n\aYou can't set navy close to other navy\n"); textcolor(WHITE);
+                textcolor(RED); gotoXY(32,wherey()+1); printf("\aYou can't set navy close to other navy\n"); textcolor(WHITE);
+                delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
             }
             else
             {
-                textcolor(RED); printf("\n\aThe ship block is occupied!\n"); textcolor(WHITE);
+                textcolor(RED); gotoXY(37,wherey()+1); printf("\aThe ship block is occupied!\n"); textcolor(WHITE);
+                delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
             }
         }
     }while(1);
@@ -383,17 +389,19 @@ void Player2()
     do
     {
         system("cls");
-        gotoXY(36,wherey());printf("Player 2 (destroy the ships)\n\n");
-        DisplayGrid(1,36);
-        gotoXY(36,wherey());GetCoordinate(&pos.x,&pos.y);
+        gotoXY(37,wherey());printf("Player 2 (destroy the ships)\n\n");
+        DisplayGrid(1,37);
+        gotoXY(37,wherey());GetCoordinate(&pos.x,&pos.y);
     } while (!MissileLauncher(pos.x,pos.y,9));
     system("cls");
-    gotoXY(36,wherey());printf("Player 2 (destroy the ships)\n\n");
-    DisplayGrid(1,36);
+    gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("Good Job!\n\n"); textcolor(WHITE);
+    DisplayGrid(1,37);
 }
 int MissileLauncher(int x, int y, int nbrCases)
 {
     static int hits=0;
+
+    if(hits >= nbrCases) hits = 0;
 
     if(data2[x][y] == ' ')
     {
@@ -401,7 +409,7 @@ int MissileLauncher(int x, int y, int nbrCases)
         {
             data2[x][y] = 'X';
             //Score
-            scoreMissile--; 
+            scoreMissile-= 10; 
         }
         else
         {
@@ -411,7 +419,7 @@ int MissileLauncher(int x, int y, int nbrCases)
 		    scoreMissile = 36;
         }
     }
-    else{ textcolor(RED); printf("\n\aThe Box already striked!\n"); textcolor(WHITE); delay(1000);}
+    else{ textcolor(RED); gotoXY(38,wherey()+1); printf("\aThe Box already striked!\n"); textcolor(WHITE); delay(1000);}
 
     return hits >= nbrCases ? 1 : 0;
 }
@@ -420,19 +428,32 @@ void SetScore()
     gameTime.end = time(&gameTime.end);
     player2.time = difftime(gameTime.end,gameTime.start);
 
-    if(player2.time < 1) player2.time += 100;
-    else if(player2.time >= 1 && player2.time < 2) player2.score += 75;
-    else if(player2.time >= 2 && player2.time < 3) player2.score += 50;
-    else if (player2.time >= 3 && player2.time < 4) player2.score += 25;
-    else if(player2.time >= 4 && player2.time < 5) player2.score += 5;
+    if(player2.time < 10) player2.time += 100;
+    else if(player2.time < 30) player2.score += 75;
+    else if(player2.time < 60) player2.score += 50;
+    else if(player2.time < 100) player2.score += 25;
+    else player2.score += 5;
 
-    printf("\n****** Player 2 ******\n\n");
-    printf("    Your Name : "); fflush(stdin); gets(player2.name);
+    delay(300);
+    gotoXY(40,wherey());printf("****** Player 2 ******\n\n");
+    while(1)
+    {
+        gotoXY(40,wherey());printf("    Nickname : "); fflush(stdin); gets(player2.name);
+        DeleteBlankSpaces(player2.name);
+        if(strcmp(player2.name,"")!=0) break;
+        textcolor(RED); gotoXY(32, wherey()+1); printf("\aError! please enter a valid nickname\n"); textcolor(WHITE);
+        delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
+    }
 }
 void GetScore()
 {
-    printf("\n****** Score ******\n\n");
-    printf("    %s : %d\n",player2.name, player2.score);
+    delay(500); clrscr();
+    gotoXY(40,wherey());printf("****** Scores ******\n\n");
+    gotoXY(40,wherey());printf("    %s : %d\n",player2.name, player2.score);
+    //Add other score from local DB
+    //here...
+    printf("\n\n");
+    gotoXY(44,wherey()); printf("Click Any Key!\n");
 }
 //How To Play Functions Definition
 void HowToPlay()
@@ -478,10 +499,12 @@ void GetCoordinate(int *x, int *y)
     char *coordinate = (char *) malloc(sizeof(char));
     do
     {
-        printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
+        gotoXY(37,wherey()); printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
         if(CoordinateConverter(x,y,coordinate)) break;
-        textcolor(RED); printf("\aIncorrect Coordinate! (ex: A1)\n"); textcolor(WHITE);
+        gotoXY(34,wherey()); textcolor(RED); printf("\aIncorrect Coordinate! (ex: A1)\n"); textcolor(WHITE);
+        delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
     }while(1);
+    free(coordinate);
 }
 int CoordinateConverter(int *x, int *y, char *v)
 {

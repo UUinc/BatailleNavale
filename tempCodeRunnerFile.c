@@ -1,4 +1,2 @@
-fflush(stdin);
-                printf("choice : "); 
-                if(scanf("%d",&rotation)) break;
-                printf("Error! rotation Incorrect\n");
+            InitData(data,6,' ');
+                InitData(data2,6,' ');
