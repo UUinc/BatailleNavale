@@ -30,7 +30,7 @@ void Title(void);
 void TitleAscii(void);
 void BoatAscii(void);
 int Menu(void);
-void DisplayGrid(int choice);
+void DisplayGrid(int choice, int posX);
 //Player 1
 void Player1(void);
 void SetShip(char name);
@@ -153,7 +153,7 @@ int Menu()
         if(error)
         {
             gotoXY(40,21);textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
-            Sleep(1000);
+            delay(1000);
             //wipe the line
             printf("\x1b[2K");
         }
@@ -163,7 +163,7 @@ int Menu()
 }
 //Display Matrix 6 x 6
 //choice (0==data, 1==data2)
-void DisplayGrid(int choice)
+void DisplayGrid(int choice, int posX)
 {
     int i, j, k, l;
     char grid[14][26]={{' ',' ',' ','1',' ',' ',' ','2',' ',' ',' ','3',' ',' ',' ','4',' ',' ',' ','5',' ',' ',' ','6',' ',' '},
@@ -197,6 +197,7 @@ void DisplayGrid(int choice)
     //Display Grid
     for(i=0; i<14; i++)
     {
+        gotoXY(posX,wherey());
         for(j=0; j<26; j++)
         {
             printf("%c",grid[i][j]);
@@ -213,13 +214,13 @@ void Player1()
     for(i=0; i<3; i++)
     {
         system("cls");
-        printf("Player 1 (place the ships)\n\n");
-        DisplayGrid(0);
-        SetShip(navire[i]);
+        gotoXY(36,wherey());printf("Player 1 (place the ships)\n\n");
+        DisplayGrid(0,36);
+        gotoXY(36,wherey());SetShip(navire[i]);
     }
     system("cls");
-    printf("Player 1 (place the ships)\n\n");
-    DisplayGrid(0);
+    gotoXY(36,wherey());printf("Player 1 (place the ships)\n\n");
+    DisplayGrid(0,36);
 }
 void SetShip(char name)
 {
@@ -255,7 +256,7 @@ void SetShip(char name)
                 if(available[0] == -1)
                 {
                     // Move to beginning of previous line and Clear entire line
-                    printf("\x1b[1F\x1b[2Kimpossible to set a navy here\n");
+                    textcolor(RED); printf("\x1b[1F\x1b[2K\aimpossible to set a navy here\n"); textcolor(WHITE);
                     goto GetCoord;
                 }
                 j = i;
@@ -264,12 +265,12 @@ void SetShip(char name)
                     fflush(stdin);
                     printf("choice : ");
                     if(scanf("%d",&rotation)) break;
-                    printf("Error! rotation incorrect\n");
+                    textcolor(RED); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
                 }while(1);
                 //check if the rotation selected is available
                 for(i=j;i>0;i--) if(rotation == available[i-1]) break;
                 if(i) break;
-                printf("Error! rotation incorrect\n");
+                textcolor(RED); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
                 goto getRotation;
             }while(1);
 
@@ -363,9 +364,14 @@ void SetShip(char name)
         }
         else
         {
-            if(data[pos.x][pos.y] == '#') printf("\nYou can't set navy close to other navy\n");
-            else printf("\nThe ship block is occupied!\n");
-            //getch();
+            if(data[pos.x][pos.y] == '#')
+            {
+                textcolor(RED); printf("\n\aYou can't set navy close to other navy\n"); textcolor(WHITE);
+            }
+            else
+            {
+                textcolor(RED); printf("\n\aThe ship block is occupied!\n"); textcolor(WHITE);
+            }
         }
     }while(1);
 }
@@ -377,13 +383,13 @@ void Player2()
     do
     {
         system("cls");
-        printf("Player 2 (destroy the ships)\n\n");
-        DisplayGrid(1);
-        GetCoordinate(&pos.x,&pos.y);
+        gotoXY(36,wherey());printf("Player 2 (destroy the ships)\n\n");
+        DisplayGrid(1,36);
+        gotoXY(36,wherey());GetCoordinate(&pos.x,&pos.y);
     } while (!MissileLauncher(pos.x,pos.y,9));
     system("cls");
-    printf("Player 2 (destroy the ships)\n\n");
-    DisplayGrid(1);
+    gotoXY(36,wherey());printf("Player 2 (destroy the ships)\n\n");
+    DisplayGrid(1,36);
 }
 int MissileLauncher(int x, int y, int nbrCases)
 {
@@ -405,7 +411,7 @@ int MissileLauncher(int x, int y, int nbrCases)
 		    scoreMissile = 36;
         }
     }
-    else{ printf("\nThe Box already striked!\n"); getch();}
+    else{ textcolor(RED); printf("\n\aThe Box already striked!\n"); textcolor(WHITE); delay(1000);}
 
     return hits >= nbrCases ? 1 : 0;
 }
@@ -450,7 +456,7 @@ void Settings(void)
     do{
         scanf("%d",&darkMode);
         if(darkMode==0 || darkMode==1) break;
-        printf("Error! only (1:ON or 0:OFF)");
+        textcolor(RED); printf("\aError! only (1:ON or 0:OFF)"); textcolor(WHITE);
     }while(1);
 }
 void DarkMode(int on)
@@ -474,7 +480,7 @@ void GetCoordinate(int *x, int *y)
     {
         printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
         if(CoordinateConverter(x,y,coordinate)) break;
-        printf("Incorrect Coordinate! (ex: A1)\n");
+        textcolor(RED); printf("\aIncorrect Coordinate! (ex: A1)\n"); textcolor(WHITE);
     }while(1);
 }
 int CoordinateConverter(int *x, int *y, char *v)
