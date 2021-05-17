@@ -48,12 +48,14 @@ void DarkMode(int on);
 void InitData(char str[][6],int len,char c);
 void GetCoordinate(int *x, int *y);
 int CoordinateConverter(int *x, int *y, char *v);
+void SetPlayersNickname(void);
+void SetName(char *title, char *_name);
 void DeleteBlankSpaces(char *s);
 void MaximizeOutputWindow(void);
 
 //Global
 GameTime gameTime;
-Winner Player;
+Winner _player[2];
 
 int darkMode=0; //0 = off - 1 = on
 char dataShip[6][6], dataMissile[6][6];
@@ -86,10 +88,16 @@ int main()
                 InitData(dataShip,6,' ');
                 InitData(dataMissile,6,' ');
                 //Initialize score
-                Player.score = 0;
+                _player[0].score = 0;
+                clrscr();
+                //Set Names
+                SetPlayersNickname();
+                //Player 1 place ships
                 PlaceShips(0);
                 getch();
+                //Player 2 destroy ships
                 DestroyShips(0);
+                //Set and Get Score
                 SetScore();
                 GetScore();
                 break;
@@ -99,6 +107,19 @@ int main()
                 InitData(dataMissile,6,' ');
                 InitData(dataShip2,6,' ');
                 InitData(dataMissile2,6,' ');
+                clrscr();
+                //Set Names
+                SetPlayersNickname();
+                //Player1 place ships
+                PlaceShips(0);
+                getch();
+                //Player2 place ships
+                PlaceShips(1);
+                getch();
+                //Player1 place ships
+                DestroyShips(0);
+                //Player2 place ships 
+                DestroyShips(1);
                 break;
             case 3: HowToPlay(); break;
             case 4: /*Highscore();*/printf("Highscore\n"); break;
@@ -230,11 +251,14 @@ void PlaceShips(int player)
 {
     int i;
     char navire[3]={'A','B','C'};
+    char _name[20];
+
+    strcpy(_name,_player[player].name);
 
     for(i=0; i<3; i++)
     {
         system("cls");
-        gotoXY(37,wherey());printf("(place the ships)\n\n");
+        gotoXY(40,wherey());printf("%s (place the ships)\n\n",_name);
         DisplayGrid(0,37);
         if(player == 0) SetShip(navire[i], dataShip);
         else SetShip(navire[i], dataShip2);
@@ -406,11 +430,15 @@ void SetShip(char name, char data[][6])
 void DestroyShips(int player)
 {
     position pos;
+    char _name[20];
+
     gameTime.start = time(&gameTime.start);
+    strcpy(_name,_player[player==0?1:0].name);
+
     do
     {
         system("cls");
-        gotoXY(40,wherey());printf("(destroy the ships)\n\n");
+        gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_name);
         DisplayGrid(1,37);
         gotoXY(37,wherey());GetCoordinate(&pos.x,&pos.y);
     } while (!MissileLauncher(pos.x,pos.y,9,player));
@@ -437,7 +465,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
                 hits++;
                 dataMissile[x][y] = dataShip[x][y];
                 //Score
-                Player.score += scoreMissile;
+                _player[0].score += scoreMissile;
                 scoreMissile = 36;
             }
         }
@@ -470,7 +498,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
                 hits2++;
                 dataMissile2[x][y] = dataShip2[x][y];
                 //Score
-                Player.score += scoreMissile;
+                _player[0].score += scoreMissile;
                 scoreMissile = 36;
             }
         }
@@ -493,30 +521,19 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
 void SetScore()
 {
     gameTime.end = time(&gameTime.end);
-    Player.time = difftime(gameTime.end,gameTime.start);
+    _player[0].time = difftime(gameTime.end,gameTime.start);
 
-    if(Player.time < 10) Player.time += 100;
-    else if(Player.time < 30) Player.score += 75;
-    else if(Player.time < 60) Player.score += 50;
-    else if(Player.time < 100) Player.score += 25;
-    else Player.score += 5;
-
-    delay(300);
-    gotoXY(40,wherey());printf("****** Player 2 ******\n\n");
-    while(1)
-    {
-        gotoXY(40,wherey());printf("    Nickname : "); fflush(stdin); gets(Player.name);
-        DeleteBlankSpaces(Player.name);
-        if(strcmp(Player.name,"")!=0) break;
-        textcolor(RED); gotoXY(32, wherey()+1); printf("\aError! please enter a valid nickname\n"); textcolor(WHITE);
-        delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
-    }
+    if(_player[0].time < 10) _player[0].time += 100;
+    else if(_player[0].time < 30) _player[0].score += 75;
+    else if(_player[0].time < 60) _player[0].score += 50;
+    else if(_player[0].time < 100) _player[0].score += 25;
+    else _player[0].score += 5;    
 }
 void GetScore()
 {
     delay(500); clrscr();
     gotoXY(40,wherey());printf("****** Scores ******\n\n");
-    gotoXY(40,wherey());printf("    %s : %d\n",Player.name, Player.score);
+    gotoXY(40,wherey());printf("    %s : %d\n",_player[0].name, _player[0].score);
     //Add other score from local DB
     //here...
     printf("\n\n");
@@ -589,6 +606,24 @@ int CoordinateConverter(int *x, int *y, char *v)
     if(v[0]>='1' && v[0]<='6') *y = (v[0]-'0')-1; else *y = (v[1]-'0')-1;
 
     return 1;
+}
+void SetPlayersNickname()
+{
+    gotoXY(40,wherey());printf("Whats is your nickname ?\n");
+    SetName("Player 1", _player[0].name);
+    gotoXY(40,wherey());printf("-Player 2 : ");
+    SetName("Player 2", _player[1].name);
+}
+void SetName(char *title, char *_name)
+{
+    while(1)
+    {
+        gotoXY(40,wherey());printf(" -%s : ",title); fflush(stdin); gets(_name);
+        DeleteBlankSpaces(_name);
+        if(strcmp(_name,"")!=0) break;
+        textcolor(RED); gotoXY(32, wherey()+1); printf("\aError! please enter a valid nickname\n"); textcolor(WHITE);
+        delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
+    }
 }
 void DeleteBlankSpaces(char *s)
 {
