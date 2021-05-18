@@ -36,6 +36,7 @@ void PlaceShips(int player);
 void SetShip(char name, char data[][6]);
 //Ships Destroying
 void DestroyShips(int player);
+void DestroyShips_Multiplayer(void);
 int MissileLauncher(int x, int y, int nbrCases, int player);
 void SetScore(void);
 void GetScore(void);
@@ -117,9 +118,7 @@ int main()
                 PlaceShips(1);
                 getch();
                 //Player1 place ships
-                DestroyShips(0);
-                //Player2 place ships 
-                DestroyShips(1);
+                DestroyShips_Multiplayer();
                 break;
             case 3: HowToPlay(); break;
             case 4: /*Highscore();*/printf("Highscore\n"); break;
@@ -193,7 +192,7 @@ int Menu()
     return choice;
 }
 //Display Matrix 6 x 6
-//choice (0==dataShip, 1==dataMissile, 2==dataShip2, 3==dataMissile2)
+//choice (0==dataShip, 1==dataShip2, 2==dataMissile, 3==dataMissile2)
 void DisplayGrid(int choice, int posX)
 {
     int i, j, k, l;
@@ -223,10 +222,10 @@ void DisplayGrid(int choice, int posX)
                     grid[i][j] = dataShip[k][l] != '#' ? dataShip[k][l] : ' ';
                     break;
                 case 1: 
-                    grid[i][j] = dataMissile[k][l];
+                    grid[i][j] = dataShip2[k][l] != '#' ? dataShip2[k][l] : ' ';
                     break;
                 case 2: 
-                    grid[i][j] = dataShip2[k][l] != '#' ? dataShip2[k][l] : ' ';
+                    grid[i][j] = dataMissile[k][l];
                     break;
                 case 3: 
                     grid[i][j] = dataMissile2[k][l];
@@ -246,7 +245,6 @@ void DisplayGrid(int choice, int posX)
         printf("\n");
     }
 }
-// Player 1 functions Definition
 void PlaceShips(int player)
 {
     int i;
@@ -259,14 +257,14 @@ void PlaceShips(int player)
     {
         system("cls");
         gotoXY(40,wherey());printf("%s (place the ships)\n\n",_name);
-        DisplayGrid(0,37);
+        DisplayGrid(player,37);
         if(player == 0) SetShip(navire[i], dataShip);
         else SetShip(navire[i], dataShip2);
     }
     system("cls");
     gotoXY(42,wherey()); textcolor(LIGHTGREEN); printf("Ships are placed!\n\n"); textcolor(WHITE);
-    DisplayGrid(0,37);
-    gotoXY(44,wherey()); printf("Click Any Key!\n");
+    DisplayGrid(player,37);
+    gotoXY(44,wherey()); printf("Press Any Key!\n");
 }
 void SetShip(char name, char data[][6])
 {
@@ -426,7 +424,6 @@ void SetShip(char name, char data[][6])
         }
     }while(1);
 }
-// Player 2 functions Definition
 void DestroyShips(int player)
 {
     position pos;
@@ -439,12 +436,44 @@ void DestroyShips(int player)
     {
         system("cls");
         gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_name);
-        DisplayGrid(1,37);
+        DisplayGrid(player+2,37);
         gotoXY(37,wherey());GetCoordinate(&pos.x,&pos.y);
-    } while (!MissileLauncher(pos.x,pos.y,9,player));
+    } while (MissileLauncher(pos.x,pos.y,9,player));
     system("cls");
     gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("Good Job!\n\n"); textcolor(WHITE);
-    DisplayGrid(1,37);
+    DisplayGrid(player+2,37);
+}
+void DestroyShips_Multiplayer()
+{
+    int player=0, r;
+    position pos;
+
+    do
+    {
+        system("cls");
+        gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_player[player].name);
+        DisplayGrid(3-player,37);
+        gotoXY(37,wherey());GetCoordinate(&pos.x,&pos.y);
+        r = MissileLauncher(pos.x,pos.y,9,1-player);
+        if(!r) break;
+        if(r == -1)
+        {
+            system("cls");
+            gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_player[player].name);
+            DisplayGrid(3-player,37);
+            player = 1-player;
+            delay(1000);
+        }
+    }while (1);
+    system("cls");
+    gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("Good Job!\n\n"); textcolor(WHITE);
+    DisplayGrid(3-player,37);
+    gotoXY(40,wherey()+1);
+    textcolor(LIGHTGREEN); printf("%s Won",_player[player].name);
+    textcolor(WHITE); printf(" - ");
+    textcolor(RED); printf("%s Lost",_player[1-player].name);
+    textcolor(WHITE);
+    gotoXY(44,wherey()+1);printf("Press any key!");
 }
 int MissileLauncher(int x, int y, int nbrCases, int player)
 {
@@ -459,14 +488,22 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
                 dataMissile[x][y] = 'X';
                 //Score
                 scoreMissile-= 10; 
+                return -1;
             }
             else
             {
-                hits++;
                 dataMissile[x][y] = dataShip[x][y];
                 //Score
                 _player[0].score += scoreMissile;
                 scoreMissile = 36;
+                
+                hits++;
+                if(hits >= nbrCases)
+                {
+                    hits = 0;
+                    return 0;
+                }
+                return 1;
             }
         }
         else
@@ -476,10 +513,6 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
             printf("\aThe Box already striked!\n");
             textcolor(WHITE);
             delay(1000);
-        }
-        if(hits >= nbrCases)
-        {
-            hits = 0;
             return 1;
         }
     }
@@ -491,15 +524,23 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
             {
                 dataMissile2[x][y] = 'X';
                 //Score
-                scoreMissile-= 10; 
+                scoreMissile-= 10;
+                return -1;
             }
             else
             {
-                hits2++;
                 dataMissile2[x][y] = dataShip2[x][y];
                 //Score
                 _player[0].score += scoreMissile;
                 scoreMissile = 36;
+                
+                hits2++;
+                if(hits2 >= nbrCases)
+                {
+                    hits2 = 0;
+                    return 0;
+                }
+                return 1;
             }
         }
         else
@@ -509,14 +550,9 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
             printf("\aThe Box already striked!\n");
             textcolor(WHITE);
             delay(1000);
-        }
-        if(hits2 >= nbrCases)
-        {
-            hits2 = 0;
             return 1;
         }
     }
-    return 0;
 }
 void SetScore()
 {
@@ -537,7 +573,7 @@ void GetScore()
     //Add other score from local DB
     //here...
     printf("\n\n");
-    gotoXY(44,wherey()); printf("Click Any Key!\n");
+    gotoXY(44,wherey()); printf("Press Any Key!\n");
 }
 //How To Play Functions Definition
 void HowToPlay()
