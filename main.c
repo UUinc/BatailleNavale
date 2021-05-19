@@ -47,7 +47,7 @@ void Settings(void);
 void DarkMode(int on);
 //Tools
 void InitData(char str[][6],int len,char c);
-void GetCoordinate(int *x, int *y);
+void GetCoordinate(int *x, int *y, int posX);
 int CoordinateConverter(int *x, int *y, char *v);
 void SetPlayersNickname(void);
 void SetName(char *title, char *_name);
@@ -274,7 +274,7 @@ void SetShip(char name, char data[][6])
     do
     {
         GetCoord:
-        GetCoordinate(&pos.x,&pos.y);
+        GetCoordinate(&pos.x,&pos.y, 37);
         if(data[pos.x][pos.y] == ' ')
         {
             int available[8]={-1}; int i=0,j,k;
@@ -437,7 +437,7 @@ void DestroyShips(int player)
         system("cls");
         gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_name);
         DisplayGrid(player+2,37);
-        gotoXY(37,wherey());GetCoordinate(&pos.x,&pos.y);
+        GetCoordinate(&pos.x,&pos.y, 37);
     } while (MissileLauncher(pos.x,pos.y,9,player));
     system("cls");
     gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("Good Job!\n\n"); textcolor(WHITE);
@@ -446,28 +446,36 @@ void DestroyShips(int player)
 void DestroyShips_Multiplayer()
 {
     int player=0, r;
+    int displayY; // to have two Grids in the same horizontal line 
     position pos;
 
     do
     {
         system("cls");
-        gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_player[player].name);
-        DisplayGrid(3-player,37);
-        gotoXY(37,wherey());GetCoordinate(&pos.x,&pos.y);
+        gotoXY(43,wherey());printf("(destroy the ships)\n\n");
+        //Display Player 1 Grid
+        displayY = wherey();
+        textcolor(player?WHITE:LIGHTGREEN); gotoXY(25,displayY);printf("%s\n\n",_player[0].name); 
+        textcolor(WHITE); DisplayGrid(2,16);
+        //Display Player 2 Grid
+        textcolor(player?LIGHTGREEN:WHITE); gotoXY(74,displayY);printf("%s\n\n",_player[1].name);
+        textcolor(WHITE); DisplayGrid(3,65);
+        //Get Coordinate
+        GetCoordinate(&pos.x,&pos.y,player?65:16);
         r = MissileLauncher(pos.x,pos.y,9,1-player);
         if(!r) break;
-        if(r == -1)
-        {
-            system("cls");
-            gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_player[player].name);
-            DisplayGrid(3-player,37);
-            player = 1-player;
-            delay(1000);
-        }
+        if(r == -1) player = 1-player; //change player turn
     }while (1);
     system("cls");
-    gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("Good Job!\n\n"); textcolor(WHITE);
-    DisplayGrid(3-player,37);
+    gotoXY(49,wherey()); textcolor(LIGHTGREEN); printf("Awesome!\n\n"); textcolor(WHITE);
+    //Display Player 1 Grid
+    displayY = wherey();
+    gotoXY(25,displayY);printf("%s\n\n",_player[0].name); 
+    DisplayGrid(2,16);
+    //Display Player 2 Grid
+    gotoXY(74,displayY);printf("%s\n\n",_player[1].name);
+    DisplayGrid(3,65);
+
     gotoXY(40,wherey()+1);
     textcolor(LIGHTGREEN); printf("%s Won",_player[player].name);
     textcolor(WHITE); printf(" - ");
@@ -573,7 +581,7 @@ void GetScore()
     //Add other score from local DB
     //here...
     printf("\n\n");
-    gotoXY(44,wherey()); printf("Press Any Key!\n");
+    gotoXY(42,wherey()); printf("Press Any Key!\n");
 }
 //How To Play Functions Definition
 void HowToPlay()
@@ -614,14 +622,14 @@ void InitData(char str[][6],int len,char c)
         for(j=0; j<len; j++)
             str[i][j] = c;
 }
-void GetCoordinate(int *x, int *y)
+void GetCoordinate(int *x, int *y, int posX)
 {
     char *coordinate = (char *) malloc(sizeof(char));
     do
     {
-        gotoXY(37,wherey()); printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
+        gotoXY(posX,wherey()); printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
         if(CoordinateConverter(x,y,coordinate)) break;
-        gotoXY(34,wherey()); textcolor(RED); printf("\aIncorrect Coordinate! (ex: A1)\n"); textcolor(WHITE);
+        gotoXY(posX-3,wherey()); textcolor(RED); printf("\aIncorrect Coordinate! (ex: A1)\n"); textcolor(WHITE);
         delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
     }while(1);
     free(coordinate);
