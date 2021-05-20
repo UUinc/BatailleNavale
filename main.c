@@ -45,6 +45,8 @@ void HowToPlay(void);
 //Settings
 void Settings(void);
 void DarkMode(int on);
+//About
+void About(void);
 //Tools
 void InitData(char str[][6],int len,char c);
 void GetCoordinate(int *x, int *y, int posX);
@@ -123,7 +125,7 @@ int main()
             case 3: HowToPlay(); break;
             case 4: /*Highscore();*/printf("Highscore\n"); break;
             case 5: Settings(); break;
-            case 6: /*Info();*/printf("Info\n"); break;
+            case 6: About(); break;
             case 0: exit(0);
         }
         getch();
@@ -171,7 +173,7 @@ int Menu()
     gotoXY(43,wherey());printf("3.How To Play\n");
     gotoXY(43,wherey());printf("4.Highscore\n");
     gotoXY(43,wherey());printf("5.Settings\n");
-    gotoXY(43,wherey());printf("6.Info\n");
+    gotoXY(43,wherey());printf("6.About\n");
     gotoXY(43,wherey());printf("0.Exit\n");
 
     do
@@ -600,18 +602,36 @@ void HowToPlay()
 void Settings(void)
 {
     system("cls");
-    printf("Settings\n\n");
-    printf("-Dark Mode (1:ON or 0:OFF): ");
+    gotoXY(48,wherey()); printf("Settings\n\n");
+    gotoXY(40,wherey()); printf("-Dark Mode (1:ON or 0:OFF): ");
     do{
         scanf("%d",&darkMode);
         if(darkMode==0 || darkMode==1) break;
-        textcolor(RED); printf("\aError! only (1:ON or 0:OFF)"); textcolor(WHITE);
+        textcolor(RED); gotoXY(40,wherey()); printf("\aError! only (1:ON or 0:OFF)"); textcolor(WHITE);
     }while(1);
 }
 void DarkMode(int on)
 {
     if(on) { textbackground(BLACK); return;}
     textbackground(CYAN);
+}
+//About Functions Definition
+void About()
+{
+    system("cls");
+    gotoXY(49,wherey()); printf("About\n\n");
+    gotoXY(33,wherey()); printf("This Game was made for a school project\n\n");
+    gotoXY(42,wherey()); printf("Developed by :\n");
+
+    gotoXY(44,wherey());   printf("-YAHYA LAZREK");
+    gotoXY(44,wherey()+1); printf("-BADR TEBAA");
+    gotoXY(44,wherey()+1); printf("-ZAKARIA MESSOUS");
+    gotoXY(44,wherey()+1); printf("-SALMA ROUIBAH\n\n");
+
+    gotoXY(38,wherey()); printf("*** Special Thanks To ***\n");
+    gotoXY(30,wherey());printf(" Mr.MEHDI EL HAIRIBI and Mr.YOUSSEF MOURDI");
+
+    gotoXY(22,wherey()+2); printf("Github (Code Source): https://github.com/UUinc/BatailleNavale\n\n");
 }
 //Tools
 void InitData(char str[][6],int len,char c)
