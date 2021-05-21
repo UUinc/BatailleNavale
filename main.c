@@ -106,6 +106,7 @@ int main()
                 //Set and Get Score
                 SetScore();
                 GetScore();
+                getch();
                 break;
             case 2:  
                 //Initialize string by spaces
@@ -124,6 +125,7 @@ int main()
                 getch();
                 //Player1 place ships
                 DestroyShips_Multiplayer();
+                getch();
                 break;
             case 3: HowToPlay(); break;
             case 4: /*Highscore();*/printf("Highscore\n"); break;
@@ -131,7 +133,6 @@ int main()
             case 6: About(); break;
             case 0: exit(0);
         }
-        getch();
         system("cls");
     } while (result);
 
@@ -269,7 +270,7 @@ void PlaceShips(int player)
     system("cls");
     gotoXY(42,wherey()); textcolor(LIGHTGREEN); printf("Ships are placed!\n\n"); textcolor(WHITE);
     DisplayGrid(player,37);
-    gotoXY(44,wherey()); printf("Press Any Key!\n");
+    gotoXY(44,wherey()); printf("Press any Key!\n");
 }
 void SetShip(char name, char data[][6])
 {
@@ -586,7 +587,7 @@ void GetScore()
     //Add other score from local DB
     //here...
     printf("\n\n");
-    gotoXY(42,wherey()); printf("Press Any Key!\n");
+    gotoXY(42,wherey()); printf("Press any Key!\n");
 }
 //How To Play Functions Definition
 void HowToPlay()
@@ -600,18 +601,56 @@ void HowToPlay()
     "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
     "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
     " Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n");
+
+    gotoXY(44,wherey());printf("Press any Key!");
+    getch();
 }
 //Settings Functions Definition
 void Settings(void)
 {
-    system("cls");
-    gotoXY(48,wherey()); printf("Settings\n\n");
-    gotoXY(40,wherey()); printf("-Dark Mode (1:ON or 0:OFF): ");
-    do{
-        scanf("%d",&darkMode);
-        if(darkMode==0 || darkMode==1) break;
-        textcolor(RED); gotoXY(40,wherey()); printf("\aError! only (1:ON or 0:OFF)"); textcolor(WHITE);
-    }while(1);
+    int choice, error;
+
+    do
+    {
+        system("cls");
+        gotoXY(47,wherey()); printf("Settings\n\n");
+
+        //settings menu
+        gotoXY(46,wherey());printf("1.Dark Mode\n");
+        gotoXY(46,wherey());printf("0.Exit\n");
+
+        do
+        {
+            gotoXY(46,wherey()+1);
+            printf("Choice : ");
+            fflush(stdin);
+            error = !scanf("%d",&choice);
+            error = error || choice > 1 || choice < 0 ? 1 : 0;
+            
+            if(error)
+            {
+                gotoXY(40,wherey());textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
+                delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
+            }
+        } while (error);
+
+        gotoXY(43,wherey()+1); printf("ON  : 1 | OFF : 0\n\n");
+
+        switch(choice)
+        {
+            case 1:
+                gotoXY(40,wherey()); printf("Dark Mode : ");
+                do{
+                    scanf("%d",&darkMode);
+                    if(darkMode==0 || darkMode==1) break;
+                    textcolor(RED); gotoXY(40,wherey());
+                    printf("\aError! Only ( ON : 1 or OFF : 0 )");
+                    textcolor(WHITE);
+                }while(1);
+                DarkMode(darkMode);
+                break;
+        } 
+    }while(choice);
 }
 void DarkMode(int on)
 {
@@ -635,6 +674,9 @@ void About()
     gotoXY(30,wherey());printf(" Mr.MEHDI EL HAIRIBI and Mr.YOUSSEF MOURDI");
 
     gotoXY(22,wherey()+2); printf("Github (Code Source): https://github.com/UUinc/BatailleNavale\n\n");
+
+    gotoXY(44,wherey());printf("Press any Key!");
+    getch();
 }
 //Tools
 void InitData(char str[][6],int len,char c)
