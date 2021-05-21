@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <windows.h>
 #include <string.h>
+#include "fontsize.h"
 
 //Structs
 typedef struct
@@ -69,6 +70,8 @@ int main()
 {
     int result;
     
+    //Change Application Font size
+    FontSize(28);
     //Maximize Application in Start
     MaximizeOutputWindow();
     //Game Main Title
