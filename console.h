@@ -1,6 +1,12 @@
 #include <stdlib.h>
 #include <Windows.h>
 
+void MaximizeOutputWindow(void)
+{
+    HWND consoleWindow = GetConsoleWindow(); // This gets the value Windows uses to identify your output window 
+    ShowWindow(consoleWindow, SW_MAXIMIZE); // this mimics clicking on its' maximize button
+}
+
 int GetFontSize(HANDLE windowHandle, COORD *size)
 {
     CONSOLE_FONT_INFOEX font = { sizeof(CONSOLE_FONT_INFOEX) };
