@@ -42,7 +42,11 @@ int MissileLauncher(int x, int y, int nbrCases, int player);
 void SetScore(void);
 void GetScore(void);
 //How To Play
-void HowToPlay(void);
+void HowToPlay(int guide);
+//Highscore
+void SetScores(void);
+void GetScores(void);
+void Highscores(void);
 //Settings
 void Settings(void);
 void DarkMode(int on);
@@ -55,17 +59,19 @@ int CoordinateConverter(int *x, int *y, char *v);
 void SetPlayersNickname(void);
 void SetName(char *title, char *_name);
 void DeleteBlankSpaces(char *s);
+void Path(int argc, char* argv[]);
 
 //Global
 GameTime gameTime;
 Winner _player[2];
-
+char path[MAX_PATH] = "";
 int darkMode=0; //0 = off - 1 = on
 char dataShip[6][6], dataMissile[6][6];
 char dataShip2[6][6], dataMissile2[6][6];
 int scoreMissile=36;
+int lang=1; //en : 1 | fr : 2;
 
-int main()
+int main(int argc, char* argv[])
 {
     int result;
     
@@ -75,10 +81,11 @@ int main()
     MaximizeOutputWindow();
     //Game Main Title
     system("title Bataille Navale");
-
+    //Get the Directory Path and set it the global variable path 
+    Path(argc, argv);
     //Game Background Color
     textcolor(WHITE);
-    
+
     do
     {
         DarkMode(darkMode);
@@ -93,7 +100,7 @@ int main()
                 InitData(dataShip,6,' ');
                 InitData(dataMissile,6,' ');
                 //Initialize score
-                _player[0].score = 0;
+                _player[1].score = 0;
                 clrscr();
                 //Set Names
                 SetPlayersNickname();
@@ -126,8 +133,12 @@ int main()
                 DestroyShips_Multiplayer();
                 getch();
                 break;
-            case 3: HowToPlay(); break;
-            case 4: /*Highscore();*/printf("Highscore\n"); break;
+            case 3: HowToPlay(lang); break;
+            case 4: 
+                clrscr();
+                printf("%s\n",path);
+                getch();
+                break;
             case 5: Settings(); break;
             case 6: About(); break;
             case 0: exit(0);
@@ -189,7 +200,7 @@ int Menu()
         
         if(error)
         {
-            gotoXY(40,wherey());textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
+            gotoXY(40,wherey());textcolor(RED);printf("\aincorrect choice!");textcolor(WHITE);
             delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
         }
     } while (error);
@@ -507,7 +518,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
             {
                 dataMissile[x][y] = dataShip[x][y];
                 //Score
-                _player[0].score += scoreMissile;
+                _player[1].score += scoreMissile;
                 scoreMissile = 36;
                 
                 hits++;
@@ -544,7 +555,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
             {
                 dataMissile2[x][y] = dataShip2[x][y];
                 //Score
-                _player[0].score += scoreMissile;
+                _player[1].score += scoreMissile;
                 scoreMissile = 36;
                 
                 hits2++;
@@ -573,38 +584,135 @@ void SetScore()
     _player[0].time = difftime(gameTime.end,gameTime.start);
 
     if(_player[0].time < 10) _player[0].time += 100;
-    else if(_player[0].time < 30) _player[0].score += 75;
-    else if(_player[0].time < 60) _player[0].score += 50;
-    else if(_player[0].time < 100) _player[0].score += 25;
-    else _player[0].score += 5;    
+    else if(_player[0].time < 30) _player[1].score += 75;
+    else if(_player[0].time < 60) _player[1].score += 50;
+    else if(_player[0].time < 100) _player[1].score += 25;
+    else _player[1].score += 5;    
 }
 void GetScore()
 {
     delay(500); clrscr();
     gotoXY(40,wherey());printf("****** Scores ******\n\n");
-    gotoXY(40,wherey());printf("    %s : %d\n",_player[0].name, _player[0].score);
+    gotoXY(40,wherey());printf("    %s : %d\n",_player[1].name, _player[1].score);
     //Add other score from local DB
     //here...
     printf("\n\n");
     gotoXY(42,wherey()); printf("Press any Key!\n");
 }
-//How To Play Functions Definition
-void HowToPlay()
+//Functions Definition
+//How To Play 
+//guide = 1 (francais) || guide = 2 (anglais)
+void HowToPlay(int guide)
 {
-    system("cls");
-    printf("\nHow To Play : Bataille Navale\n\n");
-    printf("Au d\x82""but du jeu, chaque joueur place \x85 sa guise tous les bateaux sur sa grille de fa\x87on strat\x82gique. ");
-    printf("Le but \x82tant de compliquer au maximum la tache de son adversaire, c'est-\x85-dire d\x82truire tous vos navires.");
-    printf("\nLorem ipsum dolor sit amet, consectetur adipiscing elit, "
-    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, "
-    "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-    " Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n");
+    clrscr();
+    FontSize(24);
 
-    gotoXY(44,wherey());printf("Press any Key!");
+    if (guide == 1) {
+        
+        gotoXY(52, wherey());
+        printf("Welcome to our game!! \n");
+
+        gotoXY(22, wherey()+2);
+        printf(" I'll be your guide for today, and walk you through how our game works:  \n");
+        gotoXY(10, wherey()+1);
+        printf("1-For starters Our game is a board game that requires 2 players (2 humans against each other or 1 human against the robot).\n");
+        gotoXY(12, wherey()+1);
+        printf("2- The goal is : \n");
+        gotoXY(12, wherey());
+        printf(" \xAF 1 of the 2 players must place the ships on a grid which will be displayed on the screen by entering the coordinates of the chosen box .\n");
+        gotoXY(12, wherey());
+        printf(" \xAF While the second player's job is to : 'search and hit the enemy ships' .\n");
+        gotoXY(10, wherey()+1);
+        printf("3-To win it is necessary that the second player reaches a certain score by destroying all the ships. the first player will win if the second player fails.\n");
+
+        gotoXY(8, wherey()+2);
+        textcolor(LIGHTRED); printf(" *PAY ATTENTION:* \n"); textcolor(WHITE);
+        gotoXY(10, wherey());
+        printf("When placing ships, you will have 3 main choices: horizontal, vertical or diagonal boat.\n ");
+        gotoXY(10, wherey());
+        printf("The dimension of your boat will be : 3 boxes . ");
+        gotoXY(10, wherey()+1);
+        printf("While placing the ships, a dialogue box will appear it will make the rotation of your boat easier for you.");
+        
+    } else if (guide == 2) {
+        gotoXY(50, wherey());
+        printf("Bienvenue \x85 notre jeu !! \n");
+
+        gotoXY(10, wherey()+2);
+        printf("Je serais votre guide pour aujourd'hui , et je vous expliquerai alors comment notre jeu fonctionne :  \n");
+        gotoXY(10, wherey()+1);
+        printf("1- Bon pour commencer Notre jeu est un jeu de societe qui necessite 2 joueurs( 2 humains l'un contre l'autre ou 1 humain contre le robot) .\n");
+        gotoXY(10, wherey()+1);
+        printf("2- Le but est : \n");
+        gotoXY(12, wherey());
+        printf(" \xAF 1 de ces 2 joueurs doit placer les navires sur une grille qui va etre afficher sur l'\x82""cran en entrant les coordonn\x82""es de la case choisi. \n");
+        gotoXY(12, wherey());
+        printf(" \xAF Alors que le deuxieme joueur a comme travail:'rechercher et toucher les navires adverses'.\n");
+        gotoXY(10, wherey()+1);
+        printf("3- Pour Gagner il faut que le 2 eme joueur atteint un certain score en detruisant tout les navires.le premier joueur gagnera si le 2 eme echoue.\n");
+
+        gotoXY(8, wherey()+2);
+        textcolor(LIGHTRED); printf(" *NOTEZ BIEN:* \n"); textcolor(WHITE);
+        gotoXY(10, wherey());
+        printf("Lors du placement des navires, vous aurez 3 choix principaux: bateau horizontal, vertical ou diagonal. \n ");
+        gotoXY(10, wherey());
+        printf("La dimension de votre bateau sera : 3 cases.");
+        gotoXY(10, wherey()+1);
+        printf("Lors du placement des navires, une bo\x8Cte de dialogue appara\x8Ctra pour vous faciliter la rotation de votre bateau.");
+    }
+    gotoXY(56,wherey()+2);printf("Press any Key!");
     getch();
+    FontSize(28);
 }
-//Settings Functions Definition
+//Highscore
+// int SetScores(char **text)
+// {
+//     char fileName[20] = "scores.txt";
+    
+//     strcat(path,fileName);
+
+//     file = fopen(path,"w");
+//     if(file == NULL)
+//     {
+//         printf("file not found!\nPath : %s",path);
+//         return -1;
+//     }
+
+//     fputs(text,file);
+    
+//     fclose(file);
+// }
+// char** GetScores()
+// {
+//     int i,j,c;
+//     char **text;
+
+//     //alloc memory
+//     text = (char *) malloc(sizeof(char*));
+//     for
+
+//     file = fopen(path,"r");
+//     if(file == NULL)
+//     {
+//         printf("file not found!\nPath : %s",path);
+//         return 0;
+//     }
+    
+//     while ((c = fgetc(file)) != EOF)
+//     {
+//         if(c=='\n') {i++; j=0;}
+//         text[i][j] = c;
+//         j++;
+//     }
+//     fclose(file);
+//     //the end of the text
+//     text[i] = '\0';
+// }
+// void Highscores()
+// {
+    
+// }
+//Settings
 void Settings(void)
 {
     int choice, error;
@@ -612,38 +720,76 @@ void Settings(void)
     do
     {
         system("cls");
-        gotoXY(47,wherey()); printf("Settings\n\n");
+        gotoXY(47,wherey()); 
+        if(lang == 1) printf("Settings\n\n");
+        else if(lang == 2) printf("Param\x8Atres\n\n");
 
         //settings menu
-        gotoXY(46,wherey());printf("1.Dark Mode\n");
-        gotoXY(46,wherey());printf("0.Exit\n");
+        if(lang == 1)
+        {
+            gotoXY(46,wherey());printf("1.Language\n");
+            gotoXY(46,wherey());printf("2.Dark mode\n");
+            gotoXY(46,wherey());printf("0.Exit\n");
+        }
+        else if(lang == 2)
+        {
+            gotoXY(46,wherey());printf("1.Langue\n");
+            gotoXY(46,wherey());printf("2.Mode sombre\n");
+            gotoXY(46,wherey());printf("0.Sortir\n");
+        }
 
         do
         {
             gotoXY(46,wherey()+1);
-            printf("Choice : ");
+            if(lang == 1) printf("Choice : ");
+            else if(lang == 2) printf("Choix : ");
+            
             fflush(stdin);
             error = !scanf("%d",&choice);
-            error = error || choice > 1 || choice < 0 ? 1 : 0;
+            error = error || choice > 2 || choice < 0 ? 1 : 0;
             
             if(error)
             {
-                gotoXY(40,wherey());textcolor(RED);printf("\achoice incorrect!");textcolor(WHITE);
+                gotoXY(40,wherey());
+                textcolor(RED);
+                if(lang == 1)      printf("\aincorrect choice!");
+                else if(lang == 2) printf("\a  mauvais choix!");
+                textcolor(WHITE);
                 delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
             }
         } while (error);
 
-        gotoXY(43,wherey()+1); printf("ON  : 1 | OFF : 0\n\n");
-
         switch(choice)
         {
             case 1:
-                gotoXY(40,wherey()); printf("Dark Mode : ");
+                gotoXY(46,wherey()); 
+                if(lang == 1) printf("Languages : \n");
+                else if(lang == 2) printf("Langues : \n");
+                gotoXY(46,wherey()); printf(" 1.En\n");
+                gotoXY(46,wherey()); printf(" 2.Fr\n");
+                gotoXY(46,wherey());
+                if(lang == 1) printf("Choice : ");
+                else if(lang == 2) printf("Choix : \n");
+                do{
+                    scanf("%d",&lang);
+                    if(lang==1 || lang==2) break;
+                    textcolor(RED); gotoXY(46,wherey());
+                    if(lang == 1) printf("\aError! Only ( En : 1 or Fr : 2 )");
+                    else if(lang == 2) printf("\aErreur! Uniquement ( En : 1 ou Fr : 2 )");
+                    textcolor(WHITE);
+                }while(1);
+                break;
+            case 2:
+                gotoXY(43,wherey()+1); printf("ON  : 1 | OFF : 0\n\n");
+                gotoXY(40,wherey());
+                if(lang == 1) printf("Dark mode : ");
+                else if(lang == 2) printf("Mode sombre : ");
                 do{
                     scanf("%d",&darkMode);
                     if(darkMode==0 || darkMode==1) break;
                     textcolor(RED); gotoXY(40,wherey());
-                    printf("\aError! Only ( ON : 1 or OFF : 0 )");
+                    if(lang == 1) printf("\aError! Only ( On : 1 or Off : 0 )");
+                    else if(lang == 2) printf("\aErreur! Uniquement ( On : 1 ou Off : 0 )");
                     textcolor(WHITE);
                 }while(1);
                 DarkMode(darkMode);
@@ -656,7 +802,7 @@ void DarkMode(int on)
     if(on) { textbackground(BLACK); return;}
     textbackground(CYAN);
 }
-//About Functions Definition
+//About
 void About()
 {
     system("cls");
@@ -745,4 +891,17 @@ void DeleteBlankSpaces(char *s)
 		  k++; i--;
 	    }
     }
+}
+void Path(int argc, char* argv[])
+{
+    int i,len = strlen(argv[0]);
+
+    if(!len){ printf("\aError! Empty Path\n"); return;}
+
+    for(i=0; i<=len; i++)
+        path[i] = argv[0][i];
+
+    while(path[(len--)-2] != '\\');
+
+    path[len] = '\0';
 }
