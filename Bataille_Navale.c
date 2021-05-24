@@ -25,6 +25,12 @@ typedef struct
     int score;
 }Winner;
 
+typedef struct
+{
+    char name[50];
+    char score[5];
+}scores;
+
 //Function Declaration
 //UI
 void Title(void);
@@ -39,14 +45,15 @@ void SetShip(char name, char data[][6]);
 void DestroyShips(int player);
 void DestroyShips_Multiplayer(void);
 int MissileLauncher(int x, int y, int nbrCases, int player);
-void SetScore(void);
-void GetScore(void);
+void SetPlayerScore(void);
+void GetPlayerScore(void);
 //How To Play
 void HowToPlay(int guide);
 //Highscore
-void SetScores(void);
-void GetScores(void);
-void Highscores(void);
+void Scores(void);
+int SetScores(char text[50], char* _Mode);
+int GetScores(void);
+void DisplayScores(void);
 //Settings
 void Settings(void);
 void DarkMode(int on);
@@ -64,6 +71,7 @@ void Path(int argc, char* argv[]);
 //Global
 GameTime gameTime;
 Winner _player[2];
+scores Score[100];
 char path[MAX_PATH] = "";
 int darkMode=0; //0 = off - 1 = on
 char dataShip[6][6], dataMissile[6][6];
@@ -110,8 +118,8 @@ int main(int argc, char* argv[])
                 //Player 2 destroy ships
                 DestroyShips(0);
                 //Set and Get Score
-                SetScore();
-                GetScore();
+                SetPlayerScore();
+                GetPlayerScore();
                 getch();
                 break;
             case 2:  
@@ -136,7 +144,7 @@ int main(int argc, char* argv[])
             case 3: HowToPlay(lang); break;
             case 4: 
                 clrscr();
-                printf("%s\n",path);
+                Scores();
                 getch();
                 break;
             case 5: Settings(); break;
@@ -185,7 +193,7 @@ int Menu()
     gotoXY(43,wherey());printf("1.Play Classic\n");
     gotoXY(43,wherey());printf("2.Play Extended\n");
     gotoXY(43,wherey());printf("3.How To Play\n");
-    gotoXY(43,wherey());printf("4.Highscore\n");
+    gotoXY(43,wherey());printf("4.Scores\n");
     gotoXY(43,wherey());printf("5.Settings\n");
     gotoXY(43,wherey());printf("6.About\n");
     gotoXY(43,wherey());printf("0.Exit\n");
@@ -578,26 +586,38 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
         }
     }
 }
-void SetScore()
+void SetPlayerScore()
 {
     gameTime.end = time(&gameTime.end);
     _player[0].time = difftime(gameTime.end,gameTime.start);
-
+    printf("\ntime : %ds\n",_player[0].time);
     if(_player[0].time < 10) _player[0].time += 100;
     else if(_player[0].time < 30) _player[1].score += 75;
     else if(_player[0].time < 60) _player[1].score += 50;
     else if(_player[0].time < 100) _player[1].score += 25;
     else _player[1].score += 5;    
 }
-void GetScore()
+void GetPlayerScore()
 {
+    int index = GetScores();
+    char player[56], _score[5];
+
     delay(500); clrscr();
-    gotoXY(40,wherey());printf("****** Scores ******\n\n");
-    gotoXY(40,wherey());printf("    %s : %d\n",_player[1].name, _player[1].score);
-    //Add other score from local DB
-    //here...
-    printf("\n\n");
-    gotoXY(42,wherey()); printf("Press any Key!\n");
+
+    //file not found
+    index = index == -1 ? 0 : index;
+
+    strcpy(Score[index].name, _player[1].name);
+    sprintf(_score,"%ld", _player[1].score);
+    strcpy(Score[index].score, _score);
+
+    strcpy(player,Score[index].name);
+    strcat(player," ");
+    strcat(player,Score[index].score);
+    //Add player name and score to local DB
+    SetScores(player,"a");
+    //Display other score from local DB
+    Scores();
 }
 //Functions Definition
 //How To Play 
@@ -664,54 +684,87 @@ void HowToPlay(int guide)
     getch();
     FontSize(28);
 }
-//Highscore
-// int SetScores(char **text)
-// {
-//     char fileName[20] = "scores.txt";
-    
-//     strcat(path,fileName);
+//Scores
+void Scores()
+{
+    gotoXY(50,wherey());
+    printf("Scores\n\n");
+    DisplayScores();
+    gotoXY(46,wherey()+2);printf("Press any Key!");
+}
+int SetScores(char text[50], char* _Mode)
+{
+    int i;
+    FILE* file;
 
-//     file = fopen(path,"w");
-//     if(file == NULL)
-//     {
-//         printf("file not found!\nPath : %s",path);
-//         return -1;
-//     }
+    file = fopen(path, _Mode);
+    if(file == NULL)
+    {
+        printf("\a");
+        return -1;
+    }
 
-//     fputs(text,file);
+    fputs(text,file);
+    fputs("\n",file);
     
-//     fclose(file);
-// }
-// char** GetScores()
-// {
-//     int i,j,c;
-//     char **text;
+    fclose(file);
+    return 0;
+}
+int GetScores()
+{
+    int i,j,c;
+    int len;
+    FILE* file;
 
-//     //alloc memory
-//     text = (char *) malloc(sizeof(char*));
-//     for
+    file = fopen(path,"r");
+    if(file == NULL)
+    {   
+        printf("\a");
+        return -1;
+    }
 
-//     file = fopen(path,"r");
-//     if(file == NULL)
-//     {
-//         printf("file not found!\nPath : %s",path);
-//         return 0;
-//     }
+    i = 0;
+    while(fgets(Score[i].name, 50, file) != NULL)
+    {
+        int j,k;
+        //remove '\n' character
+        len = strlen(Score[i].name) - 1;
+        //divide name and score
+        for(j=0; Score[i].name[j] != ' ' && j<len; j++);
+        Score[i].name[j] = '\0';
+        for(j++,k=0;j<len;j++,k++) Score[i].score[k] = Score[i].name[j];
+        Score[i].score[k] = '\0';
+        i++;
+    }
     
-//     while ((c = fgetc(file)) != EOF)
-//     {
-//         if(c=='\n') {i++; j=0;}
-//         text[i][j] = c;
-//         j++;
-//     }
-//     fclose(file);
-//     //the end of the text
-//     text[i] = '\0';
-// }
-// void Highscores()
-// {
-    
-// }
+    fclose(file);
+
+    return i;
+}
+void DisplayScores()
+{
+    int i,y,max=0,len;
+    int result = GetScores();
+
+    if(result == -1 || result == 0)
+    {
+        printf("\n\n*list empty!*\n");
+        return;
+    }
+    y = wherey();
+    for(i=0; i<result; i++)
+    {
+        gotoXY(45,wherey());
+        len = printf("%s\n",Score[i].name);
+        if(max < len) max = len;
+    }
+    gotoXY(20,y);
+    for(i=0; i<result; i++)
+    {
+        gotoXY(50+max,wherey());
+        printf("%s\n",Score[i].score);
+    }
+}
 //Settings
 void Settings(void)
 {
@@ -894,6 +947,7 @@ void DeleteBlankSpaces(char *s)
 }
 void Path(int argc, char* argv[])
 {
+    char fileName[20] = "scores.uu";
     int i,len = strlen(argv[0]);
 
     if(!len){ printf("\aError! Empty Path\n"); return;}
@@ -904,4 +958,6 @@ void Path(int argc, char* argv[])
     while(path[(len--)-2] != '\\');
 
     path[len] = '\0';
+
+    strcat(path,fileName);
 }
