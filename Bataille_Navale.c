@@ -33,6 +33,7 @@ typedef struct
 
 //Function Declaration
 //UI
+void Splash(void);
 void Title(void);
 void TitleAscii(void);
 void BoatAscii(void);
@@ -94,6 +95,8 @@ int main(int argc, char* argv[])
     //Game Background Color
     textcolor(WHITE);
 
+    //Splash screen
+    Splash();
     do
     {
         DarkMode(darkMode);
@@ -157,6 +160,19 @@ int main(int argc, char* argv[])
     return 0;
 }
 //UI Functions Declaration
+void Splash()
+{
+    textbackground(CYAN);
+    clrscr();
+    gotoXY(30,10); printf(" _     _ _     _                ___      \n");
+    gotoXY(30,wherey()); printf("| |   | | |   | |              / __)_  \n");
+    gotoXY(30,wherey()); printf("| |   | | |   | |    ___  ___ | |__| |_ \n");
+    gotoXY(30,wherey()); printf("| |   | | |   | |   /___)/ _ \\|  __)  _)\n");
+    gotoXY(30,wherey()); printf("| |___| | |___| |  |___ | |_| | |  | |__\n");
+    gotoXY(30,wherey()); printf(" \\______|\\______|  (___/ \\___/|_|   \\___)\n");   
+    delay(2000);
+    clrscr();                           
+}
 void Title()
 {
     TitleAscii();
