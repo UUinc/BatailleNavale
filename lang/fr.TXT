@@ -1,0 +1,47 @@
+Jouer en mode classique
+Jouer en mode etendu
+Comment jouer
+Les scores
+Parametres
+a propos
+Sortir
+Choix
+mauvais choix
+placer les navires
+Les navires sont places
+Appuyez sur une touche
+Rotation
+Vertical vers le haut
+Vertical vers le bas
+Horizontal a droite
+Horizontal a gauche
+Diagonale vers le haut
+Diagonale vers le bas
+Diagonale secondaire vers le bas
+Diagonale secondaire vers le haut
+impossible de placer un navire ici
+Erreur! rotation incorrecte
+Vous ne pouvez pas placer le navire a proximite d'un autre navire
+Le bloc navire est occupe
+detruire les navires
+Bon travail
+Super
+Gagne
+Perdu(e)
+La boite a deja frappe
+Les scores
+liste vide
+Parametres
+Langue
+Mode sombre
+Erreur! Seul
+Ce jeu a ete fait pour un projet scolaire
+Developpe par
+Remerciement special a
+et
+Donner la coordonnee
+Coordonnees incorrectes
+Quel est ton surnom
+Joueur
+Erreur! veuillez saisir un pseudo valide
+Erreur! Chemin vide

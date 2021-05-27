@@ -31,6 +31,11 @@ typedef struct
     char score[5];
 }scores;
 
+typedef struct
+{
+    char word[100][100];
+}language;
+
 //Function Declaration
 //UI
 void Splash(void);
@@ -67,18 +72,22 @@ int CoordinateConverter(int *x, int *y, char *v);
 void SetPlayersNickname(void);
 void SetName(char *title, char *_name);
 void DeleteBlankSpaces(char *s);
-void Path(int argc, char* argv[]);
+void Path(int argc, char* argv[], char fileName[20]);
+//Language
+int GetLang(int index);
 
 //Global
 GameTime gameTime;
 Winner _player[2];
 scores Score[100];
-char path[MAX_PATH] = "";
+language Lang[2]; //two languages En and Fr
+
+char path[MAX_PATH];
 int darkMode=0; //0 = off - 1 = on
 char dataShip[6][6], dataMissile[6][6];
 char dataShip2[6][6], dataMissile2[6][6];
 int scoreMissile=36;
-int lang=1; //en : 1 | fr : 2;
+int lang=0; //en : 0 | fr : 1
 
 int main(int argc, char* argv[])
 {
@@ -90,11 +99,14 @@ int main(int argc, char* argv[])
     MaximizeOutputWindow();
     //Game Main Title
     system("title Bataille Navale");
-    //Get the Directory Path and set it the global variable path 
-    Path(argc, argv);
     //Game Background Color
     textcolor(WHITE);
-
+    //Charge languages
+    //Get the Directory Path and set it the global variable path + language files
+    Path(argc, argv, "lang\\en.txt");
+    GetLang(0);
+    Path(argc, argv, "lang\\fr.txt");
+    GetLang(1);
     //Splash screen
     Splash();
     do
@@ -120,6 +132,8 @@ int main(int argc, char* argv[])
                 getch();
                 //Player 2 destroy ships
                 DestroyShips(0);
+                //Get the Directory Path and set it the global variable path + score file name
+                Path(argc, argv, "scores.uu");
                 //Set and Get Score
                 SetPlayerScore();
                 GetPlayerScore();
@@ -145,7 +159,9 @@ int main(int argc, char* argv[])
                 getch();
                 break;
             case 3: HowToPlay(lang); break;
-            case 4: 
+            case 4:
+                //Get the Directory Path and set it the global variable path + score file name
+                Path(argc, argv, "scores.uu");
                 clrscr();
                 Scores();
                 getch();
@@ -162,6 +178,7 @@ int main(int argc, char* argv[])
 //UI Functions Declaration
 void Splash()
 {
+    int i;
     textbackground(CYAN);
     clrscr();
     gotoXY(30,10); printf(" _     _ _     _                ___      \n");
@@ -170,7 +187,12 @@ void Splash()
     gotoXY(30,wherey()); printf("| |   | | |   | |   /___)/ _ \\|  __)  _)\n");
     gotoXY(30,wherey()); printf("| |___| | |___| |  |___ | |_| | |  | |__\n");
     gotoXY(30,wherey()); printf(" \\______|\\______|  (___/ \\___/|_|   \\___)\n");   
-    delay(2000);
+    for(i=0; i<=8; i++)
+    {
+        FontSize(20+i);
+        delay(20);
+    }
+    delay(1000);
     clrscr();                           
 }
 void Title()
@@ -206,25 +228,25 @@ int Menu()
 {
     int choice, error;
 
-    gotoXY(43,wherey());printf("1.Play Classic\n");
-    gotoXY(43,wherey());printf("2.Play Extended\n");
-    gotoXY(43,wherey());printf("3.How To Play\n");
-    gotoXY(43,wherey());printf("4.Scores\n");
-    gotoXY(43,wherey());printf("5.Settings\n");
-    gotoXY(43,wherey());printf("6.About\n");
-    gotoXY(43,wherey());printf("0.Exit\n");
+    gotoXY(43,wherey());printf("1.%s\n",Lang[lang].word[0]); //Play Classic
+    gotoXY(43,wherey());printf("2.%s\n",Lang[lang].word[1]);//Play Extended
+    gotoXY(43,wherey());printf("3.%s\n",Lang[lang].word[2]);  //How To Play
+    gotoXY(43,wherey());printf("4.%s\n",Lang[lang].word[3]);       //Scores
+    gotoXY(43,wherey());printf("5.%s\n",Lang[lang].word[4]);     //Settings
+    gotoXY(43,wherey());printf("6.%s\n",Lang[lang].word[5]);        //About
+    gotoXY(43,wherey());printf("0.%s\n",Lang[lang].word[6]);         //Exit
 
     do
     {
         gotoXY(42,wherey()+1);
-        printf("Choice : ");
+        printf("%s : ",Lang[lang].word[7]);//Choice
         fflush(stdin);
         error = !scanf("%d",&choice);
         error = error || choice > 6 || choice < 0 ? 1 : 0;
         
         if(error)
         {
-            gotoXY(40,wherey());textcolor(RED);printf("\aincorrect choice!");textcolor(WHITE);
+            gotoXY(40,wherey());textcolor(RED);printf("\a%s!",Lang[lang].word[8]);textcolor(WHITE); //incorrect choice
             delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
         }
     } while (error);
@@ -296,15 +318,15 @@ void PlaceShips(int player)
     for(i=0; i<3; i++)
     {
         system("cls");
-        gotoXY(40,wherey());printf("%s (place the ships)\n\n",_name);
+        gotoXY(40,wherey());printf("%s (%s)\n\n",_name,Lang[lang].word[9]);//place the ships
         DisplayGrid(player,37);
         if(player == 0) SetShip(navire[i], dataShip);
         else SetShip(navire[i], dataShip2);
     }
     system("cls");
-    gotoXY(42,wherey()); textcolor(LIGHTGREEN); printf("Ships are placed!\n\n"); textcolor(WHITE);
+    gotoXY(42,wherey()); textcolor(LIGHTGREEN); printf("%s!\n\n",Lang[lang].word[10]); textcolor(WHITE); //Ships are placed
     DisplayGrid(player,37);
-    gotoXY(44,wherey()); printf("Press any Key!\n");
+    gotoXY(44,wherey()); printf("%s!\n",Lang[lang].word[11]);//Press any Key
 }
 void SetShip(char name, char data[][6])
 {
@@ -320,43 +342,48 @@ void SetShip(char name, char data[][6])
             int available[8]={-1}; int i=0,j,k;
             do
             {
-                gotoXY(40,wherey()+1); printf("Rotation :\n");
+                gotoXY(40,wherey()+1); printf("%s :\n",Lang[lang].word[12]); //Rotation
                 //Vertical Up
-                if(pos.x>=2 && data[pos.x-1][pos.y] == ' ' && data[pos.x-2][pos.y] == ' '){gotoXY(40,wherey()); printf(" 0.Vertical Up\n"); available[i++]=0;}
+                if(pos.x>=2 && data[pos.x-1][pos.y] == ' ' && data[pos.x-2][pos.y] == ' '){gotoXY(40,wherey()); printf(" 0.%s\n",Lang[lang].word[13]); available[i++]=0;}
                 //Vertical Down
-                if(pos.x<4 && data[pos.x+1][pos.y] == ' ' && data[pos.x+2][pos.y] == ' '){gotoXY(40,wherey()); printf(" 1.Vertical Down\n"); available[i++]=1;}
+                if(pos.x<4 && data[pos.x+1][pos.y] == ' ' && data[pos.x+2][pos.y] == ' '){gotoXY(40,wherey()); printf(" 1.%s\n",Lang[lang].word[14]); available[i++]=1;}
                 //Horizontal Right
-                if(pos.y<4 && data[pos.x][pos.y+1] == ' ' && data[pos.x][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 2.Horizontal Right\n"); available[i++]=2;}
+                if(pos.y<4 && data[pos.x][pos.y+1] == ' ' && data[pos.x][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 2.%s\n",Lang[lang].word[15]); available[i++]=2;}
                 //Horizontal Left
-                if(pos.y>=2 && data[pos.x][pos.y-1] == ' ' && data[pos.x][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 3.Horizontal Left\n"); available[i++]=3;}
+                if(pos.y>=2 && data[pos.x][pos.y-1] == ' ' && data[pos.x][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 3.%s\n",Lang[lang].word[16]); available[i++]=3;}
                 //Diagonal Up
-                if(pos.x>=2 && pos.y>=2 && data[pos.x-1][pos.y-1] == ' ' && data[pos.x-2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 4.Diagonal Up\n"); available[i++]=4;}
+                if(pos.x>=2 && pos.y>=2 && data[pos.x-1][pos.y-1] == ' ' && data[pos.x-2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 4.%s\n",Lang[lang].word[17]); available[i++]=4;}
                 //Diagonal Down
-                if(pos.x<4 && pos.y<4 && data[pos.x+1][pos.y+1] == ' ' && data[pos.x+2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 5.Diagonal Down\n"); available[i++]=5;}
+                if(pos.x<4 && pos.y<4 && data[pos.x+1][pos.y+1] == ' ' && data[pos.x+2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 5.%s\n",Lang[lang].word[18]); available[i++]=5;}
                 //Diagonal Reverse Down
-                if(pos.x<4 && pos.y>=2 && data[pos.x+1][pos.y-1] == ' ' && data[pos.x+2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 6.Diagonal Reverse Down\n"); available[i++]=6;}
+                if(pos.x<4 && pos.y>=2 && data[pos.x+1][pos.y-1] == ' ' && data[pos.x+2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 6.%s\n",Lang[lang].word[19]); available[i++]=6;}
                 //Diagonal Reverse Up
-                if(pos.x>=2 && pos.y<4 && data[pos.x-1][pos.y+1] == ' ' && data[pos.x-2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 7.Diagonal Reverse Up\n"); available[i++]=7;}
+                if(pos.x>=2 && pos.y<4 && data[pos.x-1][pos.y+1] == ' ' && data[pos.x-2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 7.%s\n",Lang[lang].word[20]); available[i++]=7;}
                 if(available[0] == -1)
                 {
                     // Move to beginning of previous line and Clear entire line
-                    textcolor(RED); gotoXY(34,wherey()); printf("\x1b[1F\x1b[2K\aimpossible to set a navy here\n"); textcolor(WHITE);
-                    delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
+                    textcolor(RED); 
+                    printf("\x1b[1F\x1b[2K");
+                    gotoXY(34,wherey());
+                    printf("\a%s",Lang[lang].word[21]);//impossible to set a navy here
+                    textcolor(WHITE);
+                    delay(1000);
+                    printf("\x1b[2K\x1b[2F\x1b[2K");
                     goto GetCoord;
                 }
                 j = i;
                 do {
                     getRotation:
                     fflush(stdin);
-                    gotoXY(40,wherey()+1); printf("choice : ");
+                    gotoXY(40,wherey()+1); printf("%s : ",Lang[lang].word[7]);//choice
                     if(scanf("%d",&rotation)) break;
-                    textcolor(RED); gotoXY(38,wherey()); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
+                    textcolor(RED); gotoXY(38,wherey()); printf("\a%s\n",Lang[lang].word[22]); textcolor(WHITE);//Error! rotation incorrect
                     delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
                 }while(1);
                 //check if the rotation selected is available
                 for(i=j;i>0;i--) if(rotation == available[i-1]) break;
                 if(i) break;
-                textcolor(RED); gotoXY(38,wherey()); printf("\aError! rotation incorrect\n"); textcolor(WHITE);
+                textcolor(RED); gotoXY(38,wherey()); printf("\a%s\n",Lang[lang].word[22]); textcolor(WHITE);//Error! rotation incorrect
                 delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
                 goto getRotation;
             }while(1);
@@ -453,12 +480,12 @@ void SetShip(char name, char data[][6])
         {
             if(data[pos.x][pos.y] == '#')
             {
-                textcolor(RED); gotoXY(32,wherey()+1); printf("\aYou can't set navy close to other navy\n"); textcolor(WHITE);
+                textcolor(RED); gotoXY(32,wherey()+1); printf("\a%s\n",Lang[lang].word[23]); textcolor(WHITE); //You can't set navy close to other navy
                 delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
             }
             else
             {
-                textcolor(RED); gotoXY(37,wherey()+1); printf("\aThe ship block is occupied!\n"); textcolor(WHITE);
+                textcolor(RED); gotoXY(37,wherey()+1); printf("\a%s!\n",Lang[lang].word[24]); textcolor(WHITE); //The ship block is occupied
                 delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
             }
         }
@@ -475,12 +502,12 @@ void DestroyShips(int player)
     do
     {
         system("cls");
-        gotoXY(38,wherey());printf("%s (destroy the ships)\n\n",_name);
+        gotoXY(38,wherey());printf("%s (%s)\n\n",_name, Lang[lang].word[25]); //destroy the ships
         DisplayGrid(player+2,37);
         GetCoordinate(&pos.x,&pos.y, 37);
     } while (MissileLauncher(pos.x,pos.y,9,player));
     system("cls");
-    gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("Good Job!\n\n"); textcolor(WHITE);
+    gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("%s!\n\n",Lang[lang].word[26]); textcolor(WHITE); //Good Job
     DisplayGrid(player+2,37);
 }
 void DestroyShips_Multiplayer()
@@ -492,7 +519,7 @@ void DestroyShips_Multiplayer()
     do
     {
         system("cls");
-        gotoXY(43,wherey());printf("(destroy the ships)\n\n");
+        gotoXY(43,wherey());printf("(%s)\n\n",Lang[lang].word[25]);//destroy the ships
         //Display Player 1 Grid
         displayY = wherey();
         textcolor(player?WHITE:LIGHTGREEN); gotoXY(25,displayY);printf("%s\n\n",_player[0].name); 
@@ -507,7 +534,7 @@ void DestroyShips_Multiplayer()
         if(r == -1) player = 1-player; //change player turn
     }while (1);
     system("cls");
-    gotoXY(49,wherey()); textcolor(LIGHTGREEN); printf("Awesome!\n\n"); textcolor(WHITE);
+    gotoXY(49,wherey()); textcolor(LIGHTGREEN); printf("%s!\n\n",Lang[lang].word[27]); textcolor(WHITE);//Awesome
     //Display Player 1 Grid
     displayY = wherey();
     gotoXY(25,displayY);printf("%s\n\n",_player[0].name); 
@@ -517,11 +544,11 @@ void DestroyShips_Multiplayer()
     DisplayGrid(3,65);
 
     gotoXY(40,wherey()+1);
-    textcolor(LIGHTGREEN); printf("%s Won",_player[player].name);
+    textcolor(LIGHTGREEN); printf("%s %s",_player[player].name, Lang[lang].word[28]); //Won
     textcolor(WHITE); printf(" - ");
-    textcolor(RED); printf("%s Lost",_player[1-player].name);
+    textcolor(RED); printf("%s %s",_player[1-player].name, Lang[lang].word[29]); //Lost
     textcolor(WHITE);
-    gotoXY(44,wherey()+1);printf("Press any key!");
+    gotoXY(44,wherey()+1);printf("%s!",Lang[lang].word[11]);//Press any key
 }
 int MissileLauncher(int x, int y, int nbrCases, int player)
 {
@@ -558,7 +585,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
         {
             textcolor(RED);
             gotoXY(38,wherey()+1);
-            printf("\aThe Box already striked!\n");
+            printf("\a%s!\n",Lang[lang].word[30]);//The Box already striked
             textcolor(WHITE);
             delay(1000);
             return 1;
@@ -595,7 +622,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
         {
             textcolor(RED);
             gotoXY(38,wherey()+1);
-            printf("\aThe Box already striked!\n");
+            printf("\a%s!\n",Lang[lang].word[30]);//The Box already striked
             textcolor(WHITE);
             delay(1000);
             return 1;
@@ -606,7 +633,6 @@ void SetPlayerScore()
 {
     gameTime.end = time(&gameTime.end);
     _player[0].time = difftime(gameTime.end,gameTime.start);
-    printf("\ntime : %ds\n",_player[0].time);
     if(_player[0].time < 10) _player[0].time += 100;
     else if(_player[0].time < 30) _player[1].score += 75;
     else if(_player[0].time < 60) _player[1].score += 50;
@@ -643,7 +669,7 @@ void HowToPlay(int guide)
     clrscr();
     FontSize(24);
 
-    if (guide == 1) {
+    if (guide == 0) {
         
         gotoXY(52, wherey());
         printf("Welcome to our game!! \n");
@@ -670,7 +696,7 @@ void HowToPlay(int guide)
         gotoXY(10, wherey()+1);
         printf("While placing the ships, a dialogue box will appear it will make the rotation of your boat easier for you.");
         
-    } else if (guide == 2) {
+    } else if (guide == 1) {
         gotoXY(50, wherey());
         printf("Bienvenue \x85 notre jeu !! \n");
 
@@ -696,7 +722,7 @@ void HowToPlay(int guide)
         gotoXY(10, wherey()+1);
         printf("Lors du placement des navires, une bo\x8Cte de dialogue appara\x8Ctra pour vous faciliter la rotation de votre bateau.");
     }
-    gotoXY(56,wherey()+2);printf("Press any Key!");
+    gotoXY(56,wherey()+2);printf("%s!",Lang[lang].word[11]);//Press any Key
     getch();
     FontSize(28);
 }
@@ -704,9 +730,9 @@ void HowToPlay(int guide)
 void Scores()
 {
     gotoXY(50,wherey());
-    printf("Scores\n\n");
+    printf("%s\n\n",Lang[lang].word[31]);//Scores
     DisplayScores();
-    gotoXY(46,wherey()+2);printf("Press any Key!");
+    gotoXY(46,wherey()+2);printf("%s!",Lang[lang].word[11]);
 }
 int SetScores(char text[50], char* _Mode)
 {
@@ -764,7 +790,7 @@ void DisplayScores()
 
     if(result == -1 || result == 0)
     {
-        printf("\n\n*list empty!*\n");
+        printf("\n\n*%s!*\n",Lang[lang].word[32]);//list empty
         return;
     }
     y = wherey();
@@ -790,28 +816,17 @@ void Settings(void)
     {
         system("cls");
         gotoXY(47,wherey()); 
-        if(lang == 1) printf("Settings\n\n");
-        else if(lang == 2) printf("Param\x8Atres\n\n");
+        printf("%s\n\n",Lang[lang].word[33]);//Settings
 
         //settings menu
-        if(lang == 1)
-        {
-            gotoXY(46,wherey());printf("1.Language\n");
-            gotoXY(46,wherey());printf("2.Dark mode\n");
-            gotoXY(46,wherey());printf("0.Exit\n");
-        }
-        else if(lang == 2)
-        {
-            gotoXY(46,wherey());printf("1.Langue\n");
-            gotoXY(46,wherey());printf("2.Mode sombre\n");
-            gotoXY(46,wherey());printf("0.Sortir\n");
-        }
+        gotoXY(46,wherey());printf("1.%s\n",Lang[lang].word[34]); //Language
+        gotoXY(46,wherey());printf("2.%s\n",Lang[lang].word[35]); //Dark mode
+        gotoXY(46,wherey());printf("0.%s\n",Lang[lang].word[6]);  //Exit
 
         do
         {
             gotoXY(46,wherey()+1);
-            if(lang == 1) printf("Choice : ");
-            else if(lang == 2) printf("Choix : ");
+            printf("%s : ",Lang[lang].word[7]); //Choice
             
             fflush(stdin);
             error = !scanf("%d",&choice);
@@ -821,8 +836,7 @@ void Settings(void)
             {
                 gotoXY(40,wherey());
                 textcolor(RED);
-                if(lang == 1)      printf("\aincorrect choice!");
-                else if(lang == 2) printf("\a  mauvais choix!");
+                printf("\a%s!",Lang[lang].word[8]);//incorrect choice
                 textcolor(WHITE);
                 delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
             }
@@ -832,38 +846,37 @@ void Settings(void)
         {
             case 1:
                 gotoXY(46,wherey()); 
-                if(lang == 1) printf("Languages : \n");
-                else if(lang == 2) printf("Langues : \n");
+                printf("%s : \n",Lang[lang].word[34]); //Language
                 gotoXY(46,wherey()); printf(" 1.En\n");
                 gotoXY(46,wherey()); printf(" 2.Fr\n");
                 gotoXY(46,wherey());
-                if(lang == 1) printf("Choice : ");
-                else if(lang == 2) printf("Choix : \n");
+                printf("%s : ",Lang[lang].word[7]); //Choice
                 do{
                     scanf("%d",&lang);
-                    if(lang==1 || lang==2) break;
+                    if(lang==1 || lang==2)
+                    {
+                        lang--;
+                        break;
+                    }
                     textcolor(RED); gotoXY(46,wherey());
-                    if(lang == 1) printf("\aError! Only ( En : 1 or Fr : 2 )");
-                    else if(lang == 2) printf("\aErreur! Uniquement ( En : 1 ou Fr : 2 )");
+                    printf("\a( En : 1 or Fr : 2 )");
                     textcolor(WHITE);
                 }while(1);
                 break;
             case 2:
                 gotoXY(43,wherey()+1); printf("ON  : 1 | OFF : 0\n\n");
                 gotoXY(40,wherey());
-                if(lang == 1) printf("Dark mode : ");
-                else if(lang == 2) printf("Mode sombre : ");
+                printf("%s : ",Lang[lang].word[35]); //Dark mode
                 do{
                     scanf("%d",&darkMode);
                     if(darkMode==0 || darkMode==1) break;
                     textcolor(RED); gotoXY(40,wherey());
-                    if(lang == 1) printf("\aError! Only ( On : 1 or Off : 0 )");
-                    else if(lang == 2) printf("\aErreur! Uniquement ( On : 1 ou Off : 0 )");
+                    printf("\a( On : 1 or Off : 0 )");
                     textcolor(WHITE);
                 }while(1);
                 DarkMode(darkMode);
                 break;
-        } 
+        }
     }while(choice);
 }
 void DarkMode(int on)
@@ -875,21 +888,24 @@ void DarkMode(int on)
 void About()
 {
     system("cls");
-    gotoXY(49,wherey()); printf("About\n\n");
-    gotoXY(33,wherey()); printf("This Game was made for a school project\n\n");
-    gotoXY(42,wherey()); printf("Developed by :\n");
+    //About
+    gotoXY(49,wherey()); printf("%s\n\n",Lang[lang].word[5]);
+    //This Game was made for a school project
+    gotoXY(33,wherey()); printf("%s\n\n",Lang[lang].word[37]);
+    //Developed by
+    gotoXY(42,wherey()); printf("%s :\n",Lang[lang].word[38]);
 
     gotoXY(44,wherey());   printf("-YAHYA LAZREK");
     gotoXY(44,wherey()+1); printf("-BADR TEBAA");
     gotoXY(44,wherey()+1); printf("-ZAKARIA MESSOUS");
     gotoXY(44,wherey()+1); printf("-SALMA ROUIBAH\n\n");
-
-    gotoXY(38,wherey()); printf("*** Special Thanks To ***\n");
-    gotoXY(30,wherey());printf(" Mr.MEHDI EL HAIRIBI and Mr.YOUSSEF MOURDI");
+    //Special Thanks To
+    gotoXY(38,wherey()); printf("*** %s ***\n",Lang[lang].word[39]);
+    gotoXY(30,wherey());printf(" Pr.MEHDI EL HAIRIBI %s Pr.YOUSSEF MOURDI",Lang[lang].word[40]); //and
 
     gotoXY(22,wherey()+2); printf("Github (Code Source): https://github.com/UUinc/BatailleNavale\n\n");
 
-    gotoXY(44,wherey());printf("Press any Key!");
+    gotoXY(44,wherey());printf("%s!",Lang[lang].word[11]);//Press any Key
     getch();
 }
 //Tools
@@ -906,9 +922,9 @@ void GetCoordinate(int *x, int *y, int posX)
     char *coordinate = (char *) malloc(sizeof(char));
     do
     {
-        gotoXY(posX,wherey()); printf("Give Coordinate : "); fflush(stdin); gets(coordinate);
+        gotoXY(posX,wherey()); printf("%s : ",Lang[lang].word[41]); /*Give Coordinate*/ fflush(stdin); gets(coordinate);
         if(CoordinateConverter(x,y,coordinate)) break;
-        gotoXY(posX-3,wherey()); textcolor(RED); printf("\aIncorrect Coordinate! (ex: A1)\n"); textcolor(WHITE);
+        gotoXY(posX-3,wherey()); textcolor(RED); printf("\a%s! (ex: A1)\n",Lang[lang].word[42]); /*Incorrect Coordinate*/ textcolor(WHITE);
         delay(1000); printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K");
     }while(1);
     free(coordinate);
@@ -932,19 +948,18 @@ int CoordinateConverter(int *x, int *y, char *v)
 }
 void SetPlayersNickname()
 {
-    gotoXY(40,wherey());printf("Whats is your nickname ?\n");
-    SetName("Player 1", _player[0].name);
-    gotoXY(40,wherey());printf("-Player 2 : ");
-    SetName("Player 2", _player[1].name);
+    gotoXY(40,wherey());printf("%s ?\n",Lang[lang].word[43]); //Whats is your nickname
+    SetName("1", _player[0].name);
+    SetName("2", _player[1].name);
 }
 void SetName(char *title, char *_name)
 {
     while(1)
     {
-        gotoXY(40,wherey());printf(" -%s : ",title); fflush(stdin); gets(_name);
+        gotoXY(40,wherey());printf(" -%s %s : ",Lang[lang].word[44] ,title); /*Player*/ fflush(stdin); gets(_name);
         DeleteBlankSpaces(_name);
         if(strcmp(_name,"")!=0) break;
-        textcolor(RED); gotoXY(32, wherey()+1); printf("\aError! please enter a valid nickname\n"); textcolor(WHITE);
+        textcolor(RED); gotoXY(32, wherey()+1); printf("\a%s\n",Lang[lang].word[45]); /*Error! please enter a valid nickname*/ textcolor(WHITE);
         delay(1000); printf("\x1b[1F\x1b[2K\x1b[2F\x1b[2K");
     }
 }
@@ -961,12 +976,16 @@ void DeleteBlankSpaces(char *s)
 	    }
     }
 }
-void Path(int argc, char* argv[])
+void Path(int argc, char* argv[], char fileName[20])
 {
-    char fileName[20] = "scores.uu";
     int i,len = strlen(argv[0]);
 
-    if(!len){ printf("\aError! Empty Path\n"); return;}
+    if(!len)
+    {
+        //Error! Empty Path
+        printf("\a%s\n",Lang[lang].word[46]);
+        return;
+    }
 
     for(i=0; i<=len; i++)
         path[i] = argv[0][i];
@@ -976,4 +995,31 @@ void Path(int argc, char* argv[])
     path[len] = '\0';
 
     strcat(path,fileName);
+}
+//Get language
+int GetLang(int index)
+{
+    int i,len;
+    FILE* file;
+
+    file = fopen(path,"r");
+    if(file == NULL)
+    {   
+        printf("\a");
+        return -1;
+    }
+
+    i = 0;
+    while(fgets(Lang[index].word[i], 100, file) != NULL)
+    {
+        //remove '\n' character
+        len = strlen(Lang[index].word[i]) - 1;
+        if(Lang[index].word[i][len] == '\n')
+            Lang[index].word[i][len] = '\0';
+        i++;
+    }
+    
+    fclose(file);
+
+    return i;
 }

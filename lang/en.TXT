@@ -1,0 +1,47 @@
+Play in classic mode
+Play in extended mode
+How To Play
+Scores
+Settings
+About
+Exit
+Choice
+incorrect choice
+place ships
+The ships are placed
+Press any Key
+Rotation
+Vertical Up
+Vertical Down
+Horizontal Right
+Horizontal Left
+Diagonal Up
+Diagonal Down
+Secondary Diagonal Down
+Secondary Diagonal Up
+impossible to place a ship here
+Mistake! incorrect rotation
+You cannot place the ship near another ship
+The ship block is occupied
+destroy ships
+Good Job
+Awesome
+Won
+Lost
+The Box already striked
+Scores
+list empty
+Settings
+Language
+Dark mode
+Error! Only
+This Game was made for a school project
+Developed by
+Special Thanks To
+and
+Give Coordinate
+Incorrect Coordinate
+Whats is your nickname
+Player
+Error! please enter a valid nickname
+Error! Empty Path
