@@ -853,13 +853,17 @@ int FindScoreByName(char name[20])
     //Not found
     return -1;
 }
+void SortScores()
+{
+    //sort the Scores and set them back to DB
+}
 void DisplayScores()
 {
     int i,y,max=0,len;
 
     if(ScoreIndex == -1 || ScoreIndex == 0)
     {
-        gotoXY(45,wherey()+2);
+        gotoXY(47,wherey()+2);
         printf("*%s!*\n",Lang[lang].word[32]);//list empty
         return;
     }
