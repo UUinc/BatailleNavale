@@ -45,3 +45,8 @@ Whats is your nickname
 Player
 Error! please enter a valid nickname
 Error! Empty Path
+Fascinating
+Well played
+Not bad
+Very bad
+50

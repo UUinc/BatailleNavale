@@ -45,3 +45,8 @@ Quel est ton surnom
 Joueur
 Erreur! veuillez saisir un pseudo valide
 Erreur! Chemin vide
+Fascinant
+Bien joue
+Pas mal
+Tres mauvais
+50

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <time.h>
 #include <conio.h>
 #include <windows.h>
@@ -50,15 +51,17 @@ void SetShip(char name, char data[][6]);
 //Ships Destroying
 void DestroyShips(int player);
 void DestroyShips_Multiplayer(void);
-int MissileLauncher(int x, int y, int nbrCases, int player);
+int MissileLauncher(int x, int y, int nbrCases, int player, int offset);
 void SetPlayerScore(void);
 void GetPlayerScore(void);
 //How To Play
 void HowToPlay(int guide);
 //Highscore
 void Scores(void);
-int SetScores(char text[50], char* _Mode);
+int SetScore(char text[50], char* _Mode);
+void SetScores(void);
 int GetScores(void);
+int FindScoreByName(char name[20]);
 void DisplayScores(void);
 //Settings
 void Settings(void);
@@ -79,7 +82,7 @@ int GetLang(int index);
 //Global
 GameTime gameTime;
 Winner _player[2];
-scores Score[100];
+scores Score[100]; int ScoreIndex;
 language Lang[2]; //two languages En and Fr
 
 char path[MAX_PATH];
@@ -107,6 +110,10 @@ int main(int argc, char* argv[])
     GetLang(0);
     Path(argc, argv, "lang\\fr.txt");
     GetLang(1);
+    //Get All Scores
+    //Get the Directory Path and set it the global variable path + score file name
+    Path(argc, argv, "scores.uu");
+    ScoreIndex = GetScores();
     //Splash screen
     Splash();
     do
@@ -124,6 +131,7 @@ int main(int argc, char* argv[])
                 InitData(dataMissile,6,' ');
                 //Initialize score
                 _player[1].score = 0;
+                MissileHit = 0;
                 clrscr();
                 //Set Names
                 SetPlayersNickname();
@@ -132,8 +140,6 @@ int main(int argc, char* argv[])
                 getch();
                 //Player 2 destroy ships
                 DestroyShips(0);
-                //Get the Directory Path and set it the global variable path + score file name
-                Path(argc, argv, "scores.uu");
                 //Set and Get Score
                 SetPlayerScore();
                 GetPlayerScore();
@@ -504,7 +510,7 @@ void DestroyShips(int player)
         gotoXY(38,wherey());printf("%s (%s)\n\n",_name, Lang[lang].word[25]); //destroy the ships
         DisplayGrid(player+2,37);
         GetCoordinate(&pos.x,&pos.y, 37);
-    } while (MissileLauncher(pos.x,pos.y,9,player));
+    } while (MissileLauncher(pos.x,pos.y,9,player,37));
     system("cls");
     gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("%s!\n\n",Lang[lang].word[26]); textcolor(WHITE); //Good Job
     DisplayGrid(player+2,37);
@@ -528,7 +534,7 @@ void DestroyShips_Multiplayer()
         textcolor(WHITE); DisplayGrid(3,65);
         //Get Coordinate
         GetCoordinate(&pos.x,&pos.y,player?65:16);
-        r = MissileLauncher(pos.x,pos.y,9,1-player);
+        r = MissileLauncher(pos.x,pos.y,9,1-player,player?65:16);
         if(!r) break;
         if(r == -1) player = 1-player; //change player turn
     }while (1);
@@ -549,7 +555,7 @@ void DestroyShips_Multiplayer()
     textcolor(WHITE);
     gotoXY(44,wherey()+1);printf("%s!",Lang[lang].word[11]);//Press any key
 }
-int MissileLauncher(int x, int y, int nbrCases, int player)
+int MissileLauncher(int x, int y, int nbrCases, int player, int offset)
 {
     static int hits=0, hits2=0;
 
@@ -580,7 +586,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
         else
         {
             textcolor(RED);
-            gotoXY(65,wherey()+1);
+            gotoXY(offset,wherey()+1);
             printf("\a%s!\n",Lang[lang].word[30]);//The Box already striked
             textcolor(WHITE);
             delay(1000);
@@ -630,28 +636,66 @@ void SetPlayerScore()
 }
 void GetPlayerScore()
 {
-    int index = GetScores();
     char player[56], _score[5];
+    int scoreConvInt, result;
+    char scoreConvChar[5];
 
     delay(500); clrscr();
 
     //file not found
-    index = index == -1 ? 0 : index;
+    ScoreIndex = ScoreIndex == -1 ? 0 : ScoreIndex;
 
-    //Debug
-    printf("Missile = %d\n",MissileHit);
-    printf("Time    = %d s\n",_player[1].time);
-    printf("Score   = %d\n",_player[1].score);
+    result = FindScoreByName(_player[1].name);
 
-    strcpy(Score[index].name, _player[1].name);
-    sprintf(_score,"%ld", _player[1].score);
-    strcpy(Score[index].score, _score);
+    //Player 2 info
+    gotoXY(45,wherey());
+    if(_player[1].score >= 80) printf("%s\n",Lang[lang].word[47]);      //Fascinating
+    else if(_player[1].score >= 50) printf("%s\n",Lang[lang].word[48]); //Well played
+    else if(_player[1].score >= 20) printf("%s\n",Lang[lang].word[49]); //Not bad
+    else printf("%s\n",Lang[lang].word[50]);                            //Very bad
 
-    strcpy(player,Score[index].name);
-    strcat(player," ");
-    strcat(player,Score[index].score);
-    //Add player name and score to local DB
-    SetScores(player,"a");
+    gotoXY(42,wherey()+1); printf("Nickname     = %s\n",_player[1].name);
+    gotoXY(42,wherey());   printf("Missiles     = %d\n",MissileHit+9);
+    gotoXY(42,wherey());   printf("Time elapsed = %d s\n",_player[1].time);
+    gotoXY(42,wherey());   printf("Score        = %d\n\n",_player[1].score);
+    if(result != -1) //the nickname is found
+    {
+        gotoXY(42,wherey());
+        textcolor(GREEN);
+        printf("Old score    = %s\n\n",Score[result].score);
+        textcolor(WHITE);
+    }
+
+    gotoXY(44,wherey()+2);printf("%s!",Lang[lang].word[11]);//Press any Key
+    getch();
+    clrscr();
+
+    if(result != -1)
+    {
+        sscanf(Score[result].score, "%d", &scoreConvInt);
+        if(scoreConvInt < _player[1].score)
+        {
+            sprintf(scoreConvChar,"%ld", _player[1].score);
+            strcpy(Score[result].score, scoreConvChar);
+            printf("Debug : \nconverte : %d = %s\n\n",_player[1].score, scoreConvChar);
+        }
+        
+        SetScores();
+    }
+    else
+    {
+        strcpy(Score[ScoreIndex].name, _player[1].name);
+        sprintf(_score,"%ld", _player[1].score);
+        strcpy(Score[ScoreIndex].score, _score);
+
+        strcpy(player,Score[ScoreIndex].name);
+        strcat(player," ");
+        strcat(player,Score[ScoreIndex].score);
+        //Add player name and score to local DB
+        SetScore(player,"a");
+
+        ScoreIndex++;
+    }
     //Display other score from local DB
     Scores();
 }
@@ -726,11 +770,10 @@ void Scores()
     gotoXY(50,wherey());
     printf("%s\n\n",Lang[lang].word[31]);//Scores
     DisplayScores();
-    gotoXY(46,wherey()+2);printf("%s!",Lang[lang].word[11]);
+    gotoXY(46,wherey()+2);printf("%s!",Lang[lang].word[11]); //press any key
 }
-int SetScores(char text[50], char* _Mode)
+int SetScore(char text[50], char* _Mode)
 {
-    int i;
     FILE* file;
 
     file = fopen(path, _Mode);
@@ -745,6 +788,28 @@ int SetScores(char text[50], char* _Mode)
     
     fclose(file);
     return 0;
+}
+void SetScores()
+{
+    int i;
+    char player[56];
+
+    if(ScoreIndex == 0) return;
+
+    strcpy(player,Score[0].name);
+    strcat(player," ");
+    strcat(player,Score[0].score);
+    //Add player name and score to local DB
+    SetScore(player,"w");
+
+    for(i=1; i<ScoreIndex; i++)
+    {
+        strcpy(player,Score[i].name);
+        strcat(player," ");
+        strcat(player,Score[i].score);
+        //Add player name and score to local DB
+        SetScore(player,"a");
+    }
 }
 int GetScores()
 {
@@ -777,25 +842,36 @@ int GetScores()
 
     return i;
 }
+int FindScoreByName(char name[20])
+{
+    int i;
+    
+    for(i=0; i<ScoreIndex; i++)
+    {
+        if(strcmp(Score[i].name, name) == 0) return i;
+    }
+    //Not found
+    return -1;
+}
 void DisplayScores()
 {
     int i,y,max=0,len;
-    int result = GetScores();
 
-    if(result == -1 || result == 0)
+    if(ScoreIndex == -1 || ScoreIndex == 0)
     {
-        printf("\n\n*%s!*\n",Lang[lang].word[32]);//list empty
+        gotoXY(45,wherey()+2);
+        printf("*%s!*\n",Lang[lang].word[32]);//list empty
         return;
     }
     y = wherey();
-    for(i=0; i<result; i++)
+    for(i=0; i<ScoreIndex; i++)
     {
         gotoXY(45,wherey());
         len = printf("%s\n",Score[i].name);
         if(max < len) max = len;
     }
     gotoXY(20,y);
-    for(i=0; i<result; i++)
+    for(i=0; i<ScoreIndex; i++)
     {
         gotoXY(50+max,wherey());
         printf("%s\n",Score[i].score);
