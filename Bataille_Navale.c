@@ -86,7 +86,7 @@ char path[MAX_PATH];
 int darkMode=0; //0 = off - 1 = on
 char dataShip[6][6], dataMissile[6][6];
 char dataShip2[6][6], dataMissile2[6][6];
-int scoreMissile=36;
+int MissileHit=0;
 int lang=0; //en : 0 | fr : 1
 
 int main(int argc, char* argv[])
@@ -473,7 +473,6 @@ void SetShip(char name, char data[][6])
                 if(data[posBloc[k].x+1][posBloc[k].y-1] == ' ' && posBloc[k].x<5 && posBloc[k].y>0) data[posBloc[k].x+1][posBloc[k].y-1] = '#';
                 if(data[posBloc[k].x+1][posBloc[k].y+1] == ' ' && posBloc[k].x<5 && posBloc[k].y<5) data[posBloc[k].x+1][posBloc[k].y+1] = '#';
             }
-            
             break;
         }
         else
@@ -560,17 +559,14 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
         {
             if(dataShip[x][y] == ' ' || dataShip[x][y] == '#')
             {
-                dataMissile[x][y] = 'X';
                 //Score
-                scoreMissile-= 10; 
+                MissileHit++; 
+                dataMissile[x][y] = 'X';
                 return -1;
             }
             else
             {
                 dataMissile[x][y] = dataShip[x][y];
-                //Score
-                _player[1].score += scoreMissile;
-                scoreMissile = 36;
                 
                 hits++;
                 if(hits >= nbrCases)
@@ -584,7 +580,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
         else
         {
             textcolor(RED);
-            gotoXY(38,wherey()+1);
+            gotoXY(65,wherey()+1);
             printf("\a%s!\n",Lang[lang].word[30]);//The Box already striked
             textcolor(WHITE);
             delay(1000);
@@ -598,16 +594,11 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
             if(dataShip2[x][y] == ' ' || dataShip2[x][y] == '#')
             {
                 dataMissile2[x][y] = 'X';
-                //Score
-                scoreMissile-= 10;
                 return -1;
             }
             else
             {
                 dataMissile2[x][y] = dataShip2[x][y];
-                //Score
-                _player[1].score += scoreMissile;
-                scoreMissile = 36;
                 
                 hits2++;
                 if(hits2 >= nbrCases)
@@ -621,7 +612,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
         else
         {
             textcolor(RED);
-            gotoXY(38,wherey()+1);
+            gotoXY(16,wherey()+1);
             printf("\a%s!\n",Lang[lang].word[30]);//The Box already striked
             textcolor(WHITE);
             delay(1000);
@@ -632,12 +623,10 @@ int MissileLauncher(int x, int y, int nbrCases, int player)
 void SetPlayerScore()
 {
     gameTime.end = time(&gameTime.end);
-    _player[0].time = difftime(gameTime.end,gameTime.start);
-    if(_player[0].time < 10) _player[0].time += 100;
-    else if(_player[0].time < 30) _player[1].score += 75;
-    else if(_player[0].time < 60) _player[1].score += 50;
-    else if(_player[0].time < 100) _player[1].score += 25;
-    else _player[1].score += 5;    
+    _player[1].time = difftime(gameTime.end,gameTime.start);
+    _player[1].score = (100 - MissileHit*2) - ((_player[1].time - 10) / 3);
+    if(_player[1].score>100) _player[1].score = 100;
+    else if(_player[1].score<0) _player[1].score = 0;
 }
 void GetPlayerScore()
 {
@@ -648,6 +637,11 @@ void GetPlayerScore()
 
     //file not found
     index = index == -1 ? 0 : index;
+
+    //Debug
+    printf("Missile = %d\n",MissileHit);
+    printf("Time    = %d s\n",_player[1].time);
+    printf("Score   = %d\n",_player[1].score);
 
     strcpy(Score[index].name, _player[1].name);
     sprintf(_score,"%ld", _player[1].score);
@@ -678,7 +672,7 @@ void HowToPlay(int guide)
         printf(" I'll be your guide for today, and walk you through how our game works:  \n");
         gotoXY(10, wherey()+1);
         printf("1-For starters Our game is a board game that requires 2 players (2 humans against each other or 1 human against the robot).\n");
-        gotoXY(12, wherey()+1);
+        gotoXY(10, wherey()+1);
         printf("2- The goal is : \n");
         gotoXY(12, wherey());
         printf(" \xAF 1 of the 2 players must place the ships on a grid which will be displayed on the screen by entering the coordinates of the chosen box .\n");

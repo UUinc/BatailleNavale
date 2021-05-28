@@ -27,7 +27,7 @@ detruire les navires
 Bon travail
 Super
 Gagne
-Perdu(e)
+Perdu
 La boite a deja frappe
 Les scores
 liste vide
