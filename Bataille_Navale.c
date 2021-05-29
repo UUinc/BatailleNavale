@@ -28,7 +28,7 @@ typedef struct
 
 typedef struct
 {
-    char name[50];
+    char name[20];
     char score[5];
 }scores;
 
@@ -57,13 +57,13 @@ void GetPlayerScore(void);
 //How To Play
 void HowToPlay(int guide);
 //Highscore
-void Scores(void);
+void Scores(char name[20]);
 int SetScore(char text[50], char* _Mode);
 void SetScores(void);
 int GetScores(void);
 int FindScoreByName(char name[20]);
 void SortScores(void);
-void DisplayScores(void);
+void DisplayScores(char name[20]);
 //Settings
 void Settings(void);
 void DarkMode(int on);
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
                 //Get the Directory Path and set it the global variable path + score file name
                 Path(argc, argv, "scores.uu");
                 clrscr();
-                Scores();
+                Scores("");
                 getch();
                 break;
             case 5: Settings(); break;
@@ -700,7 +700,7 @@ void GetPlayerScore()
     //Sort scores from the highest to the lowest score
     SortScores();
     //Display other score from local DB
-    Scores();
+    Scores(_player[1].name);
 }
 //Functions Definition
 //How To Play 
@@ -768,11 +768,11 @@ void HowToPlay(int guide)
     FontSize(28);
 }
 //Scores
-void Scores()
+void Scores(char name[20])
 {
     gotoXY(50,wherey());
     printf("%s\n\n",Lang[lang].word[31]);//Scores
-    DisplayScores();
+    DisplayScores(name);
     gotoXY(46,wherey()+2);printf("%s!",Lang[lang].word[11]); //press any key
 }
 int SetScore(char text[50], char* _Mode)
@@ -881,7 +881,7 @@ void SortScores()
     }
     SetScores();
 }
-void DisplayScores()
+void DisplayScores(char name[20])
 {
     int i,y,max=0,len;
 
@@ -894,15 +894,25 @@ void DisplayScores()
     y = wherey();
     for(i=0; i<ScoreIndex; i++)
     {
-        gotoXY(45,wherey());
+        if(strcmp(name,Score[i].name) == 0)
+        {
+            gotoXY(43,wherey());
+            textcolor(LIGHTRED);
+            printf("\xAF ");
+        }
+        else gotoXY(45,wherey());
         len = printf("%s\n",Score[i].name);
         if(max < len) max = len;
+
+        textcolor(WHITE);
     }
     gotoXY(20,y);
     for(i=0; i<ScoreIndex; i++)
     {
         gotoXY(50+max,wherey());
+        if(strcmp(name,Score[i].name) == 0) textcolor(LIGHTRED);
         printf("%s\n",Score[i].score);
+        textcolor(WHITE);
     }
 }
 //Settings
