@@ -3,10 +3,10 @@ Jouer en mode etendu
 Comment jouer
 Les scores
 Parametres
-a propos
+A Propos
 Sortir
 Choix
-mauvais choix
+Mauvais choix
 placer les navires
 Les navires sont places
 Appuyez sur une touche
@@ -54,4 +54,9 @@ Missiles
 Temps ecoule
 Score
 Score precedent
-55
+Mode classique
+Contre l'ordinateur
+Contre l'humain
+Retour a la menu principale
+L'ordinateur a reussi a placer les navires
+60

@@ -45,6 +45,9 @@ void TitleAscii(void);
 void BoatAscii(void);
 int Menu(void);
 void DisplayGrid(int choice, int posX);
+//Mode
+int ModeClassic(void);
+void PlaceShips_Computer(void);
 //Ships Placing
 void PlaceShips(int player);
 void SetShip(char name, char data[][6]);
@@ -73,10 +76,11 @@ void About(void);
 void InitData(char str[][6],int len,char c);
 void GetCoordinate(int *x, int *y, int posX);
 int CoordinateConverter(int *x, int *y, char *v);
-void SetPlayersNickname(void);
+void SetPlayersNickname(int vsComputer);
 void SetName(char *title, char *_name);
 void DeleteBlankSpaces(char *s);
 void Path(int argc, char* argv[], char fileName[20]);
+int Random(int first, int last);
 //Language
 int GetLang(int index);
 
@@ -95,7 +99,7 @@ int lang=0; //en : 0 | fr : 1
 
 int main(int argc, char* argv[])
 {
-    int result;
+    int result, classicResult, advancedResult;
     
     //Change Application Font size
     FontSize(28);
@@ -103,6 +107,8 @@ int main(int argc, char* argv[])
     MaximizeOutputWindow();
     //Game Main Title
     system("title Bataille Navale");
+    //Set Seed for rand() Function
+    srand(time(0));
     //Game Background Color
     textcolor(WHITE);
     //Charge languages
@@ -134,10 +140,31 @@ int main(int argc, char* argv[])
                 _player[1].score = 0;
                 MissileHit = 0;
                 clrscr();
-                //Set Names
-                SetPlayersNickname();
-                //Player 1 place ships
-                PlaceShips(0);
+                //Mode vs Computer or vs Human
+                classicResult = ModeClassic();
+                //go back to home scene
+                if(classicResult == 0)
+                    break;
+                //Vs Computer
+                else if(classicResult == 1)
+                {
+                    clrscr();
+                    //Set Name 
+                    SetPlayersNickname(1);
+                    //Computer place ships
+                    gotoXY(35,wherey()+2);
+                    printf("%s\n\n",Lang[lang].word[60]); //Computer did Place ships successfully
+                    PlaceShips_Computer();
+                }
+                //Vs Human
+                else if(classicResult == 2)
+                {
+                    clrscr();
+                    //Set Names
+                    SetPlayersNickname(0);
+                    //Player 1 place ships
+                    PlaceShips(0);
+                }
                 getch();
                 //Player 2 destroy ships
                 DestroyShips(0);
@@ -154,7 +181,7 @@ int main(int argc, char* argv[])
                 InitData(dataMissile2,6,' ');
                 clrscr();
                 //Set Names
-                SetPlayersNickname();
+                SetPlayersNickname(0);
                 //Player1 place ships
                 PlaceShips(0);
                 getch();
@@ -314,6 +341,86 @@ void DisplayGrid(int choice, int posX)
         printf("\n");
     }
 }
+//Mode
+int ModeClassic()
+{
+    int result, error;
+
+    do
+    {
+        gotoXY(45,wherey()); printf("%s\n\n",Lang[lang].word[56]); //Classic Mode
+
+        gotoXY(43,wherey()); printf("1.%s\n",Lang[lang].word[57]);   //Versus Computer
+        gotoXY(43,wherey()); printf("2.%s\n",Lang[lang].word[58]);   //Versus Human
+        gotoXY(43,wherey()); printf("0.%s\n\n",Lang[lang].word[59]); //Back To Home
+
+        gotoXY(43,wherey()); printf("%s : ",Lang[lang].word[7]);
+        error = scanf("%d",&result);
+
+        if(error == 1 && result >= 0 && result < 3) break;
+        //Incorrect choice error message
+        gotoXY(40,wherey());textcolor(RED);
+        printf("\a%s!",Lang[lang].word[8]);textcolor(WHITE); //incorrect choice
+        delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
+    }while(1);
+
+    return result;
+}
+void PlaceShips_Computer()
+{
+    //10 possible position
+    //Computer choose randomly
+    position pos[5][9];
+    int i, _rand;
+
+    //case 1
+    //ship A (xy:00 Horizontal right)
+    pos[0][0].x = 0; pos[0][0].y = 0; pos[0][1].x = 0; pos[0][1].y = 1; pos[0][2].x = 0; pos[0][2].y = 2;
+    //ship B (xy:05 Secondary Diagonal down)
+    pos[0][3].x = 0; pos[0][3].y = 5; pos[0][4].x = 1; pos[0][4].y = 4; pos[0][5].x = 2; pos[0][5].y = 3;
+    //ship C (xy:05 Secondary Diagonal down)
+    pos[0][6].x = 5; pos[0][6].y = 0; pos[0][7].x = 5; pos[0][7].y = 1; pos[0][8].x = 5; pos[0][8].y = 2;
+
+    //case 2
+    //ship A (xy:00 Diagonal up)
+    pos[1][0].x = 2; pos[1][0].y = 0; pos[1][1].x = 1; pos[1][1].y = 1; pos[1][2].x = 0; pos[1][2].y = 2;
+    //ship B (xy:05 Diagonal up)
+    pos[1][3].x = 2; pos[1][3].y = 3; pos[1][4].x = 1; pos[1][4].y = 4; pos[1][5].x = 0; pos[1][5].y = 5;
+    //ship C (xy:05 Diagonal up)
+    pos[1][6].x = 5; pos[1][6].y = 3; pos[1][7].x = 4; pos[1][7].y = 4; pos[1][8].x = 3; pos[1][8].y = 5;
+
+    //case 3
+    //ship A (xy:00 Vertical down)
+    pos[2][0].x = 2; pos[2][0].y = 1; pos[2][1].x = 3; pos[2][1].y = 1; pos[2][2].x = 4; pos[2][2].y = 1;
+    //ship B (xy:05 Horizontal right)
+    pos[2][3].x = 3; pos[2][3].y = 3; pos[2][4].x = 3; pos[2][4].y = 4; pos[2][5].x = 3; pos[2][5].y = 5;
+    //ship C (xy:05 Horizontal right)
+    pos[2][6].x = 0; pos[2][6].y = 2; pos[2][7].x = 0; pos[2][7].y = 3; pos[2][8].x = 0; pos[2][8].y = 4;
+
+    //case 4
+    //ship A (xy:00 Diagonal down)
+    pos[3][0].x = 2; pos[3][0].y = 0; pos[3][1].x = 3; pos[3][1].y = 1; pos[3][2].x = 4; pos[3][2].y = 2;
+    //ship B (xy:05 Horizontal right)
+    pos[3][3].x = 0; pos[3][3].y = 1; pos[3][4].x = 0; pos[3][4].y = 2; pos[3][5].x = 0; pos[3][5].y = 3;
+    //ship C (xy:05 Vertical down)
+    pos[3][6].x = 2; pos[3][6].y = 4; pos[3][7].x = 3; pos[3][7].y = 4; pos[3][8].x = 4; pos[3][8].y = 4;
+
+    //case 5
+    //ship A (xy:00 Scondary digonal up)
+    pos[4][0].x = 5; pos[4][0].y = 3; pos[4][1].x = 4; pos[4][1].y = 4; pos[4][2].x = 3; pos[4][2].y = 5;
+    //ship B (xy:05 Horizontal right)
+    pos[4][3].x = 2; pos[4][3].y = 1; pos[4][4].x = 2; pos[4][4].y = 2; pos[4][5].x = 2; pos[4][5].y = 3;
+    //ship C (xy:05 Horizontal right)
+    pos[4][6].x = 0; pos[4][6].y = 1; pos[4][7].x = 0; pos[4][7].y = 2; pos[4][8].x = 0; pos[4][8].y = 3;
+
+    _rand = Random(0,4);
+    for(i=0; i<9; i++)
+    {
+        dataShip[pos[_rand][i].x][pos[_rand][i].y] = 65+i/3;
+    }
+
+    gotoXY(44,wherey()); printf("%s!\n",Lang[lang].word[11]);//Press any Key
+}
 void PlaceShips(int player)
 {
     int i;
@@ -362,9 +469,9 @@ void SetShip(char name, char data[][6])
                 if(pos.x>=2 && pos.y>=2 && data[pos.x-1][pos.y-1] == ' ' && data[pos.x-2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 4.%s\n",Lang[lang].word[17]); available[i++]=4;}
                 //Diagonal Down
                 if(pos.x<4 && pos.y<4 && data[pos.x+1][pos.y+1] == ' ' && data[pos.x+2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 5.%s\n",Lang[lang].word[18]); available[i++]=5;}
-                //Diagonal Reverse Down
+                //Secondary Diagonal Down
                 if(pos.x<4 && pos.y>=2 && data[pos.x+1][pos.y-1] == ' ' && data[pos.x+2][pos.y-2] == ' '){gotoXY(40,wherey()); printf(" 6.%s\n",Lang[lang].word[19]); available[i++]=6;}
-                //Diagonal Reverse Up
+                //Secondary Diagonal Up
                 if(pos.x>=2 && pos.y<4 && data[pos.x-1][pos.y+1] == ' ' && data[pos.x-2][pos.y+2] == ' '){gotoXY(40,wherey()); printf(" 7.%s\n",Lang[lang].word[20]); available[i++]=7;}
                 if(available[0] == -1)
                 {
@@ -662,7 +769,7 @@ void GetPlayerScore()
     if(result != -1) //the nickname is found
     {
         gotoXY(42,wherey());
-        textcolor(GREEN);
+        textcolor(LIGHTRED);
         printf("%s = %s\n\n",Lang[lang].word[55] ,Score[result].score); //previous score
         textcolor(WHITE);
     }
@@ -678,9 +785,7 @@ void GetPlayerScore()
         {
             sprintf(scoreConvChar,"%ld", _player[1].score);
             strcpy(Score[result].score, scoreConvChar);
-            printf("Debug : \nconverte : %d = %s\n\n",_player[1].score, scoreConvChar);
         }
-        
         SetScores();
     }
     else
@@ -1054,11 +1159,19 @@ int CoordinateConverter(int *x, int *y, char *v)
 
     return 1;
 }
-void SetPlayersNickname()
+void SetPlayersNickname(int vsComputer)
 {
     gotoXY(40,wherey());printf("%s ?\n",Lang[lang].word[43]); //Whats is your nickname
-    SetName("1", _player[0].name);
-    SetName("2", _player[1].name);
+    if(vsComputer == 0)
+    {
+        SetName("1", _player[0].name);
+        SetName("2", _player[1].name);
+    }
+    else
+    {
+        strcpy(_player[0].name, "Computer");
+        SetName("", _player[1].name);
+    }
 }
 void SetName(char *title, char *_name)
 {
@@ -1103,6 +1216,13 @@ void Path(int argc, char* argv[], char fileName[20])
     path[len] = '\0';
 
     strcat(path,fileName);
+}
+int Random(int first, int last)
+{
+    int r;
+    last += (1-first);
+    r = rand()%last + first;
+    return r;
 }
 //Get language
 int GetLang(int index)

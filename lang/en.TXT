@@ -54,4 +54,9 @@ Missiles
 Time elapsed
 Score
 Previous score
-55
+Classic Mode
+Versus Computer
+Versus Human
+Back To Home
+Computer did Place ships successfully
+60
