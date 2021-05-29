@@ -62,6 +62,7 @@ int SetScore(char text[50], char* _Mode);
 void SetScores(void);
 int GetScores(void);
 int FindScoreByName(char name[20]);
+void SortScores(void);
 void DisplayScores(void);
 //Settings
 void Settings(void);
@@ -696,6 +697,8 @@ void GetPlayerScore()
 
         ScoreIndex++;
     }
+    //Sort scores from the highest to the lowest score
+    SortScores();
     //Display other score from local DB
     Scores();
 }
@@ -856,6 +859,27 @@ int FindScoreByName(char name[20])
 void SortScores()
 {
     //sort the Scores and set them back to DB
+    int i, j, max=-1, maxIndex;
+    int _score;
+    scores swap; 
+
+    for(i=0; i<ScoreIndex-1; i++)
+    {
+        for(j=i; j<ScoreIndex; j++)
+        {
+            sscanf(Score[j].score, "%d", &_score);
+            if(max < _score)
+            {
+                max = _score;
+                maxIndex = j;
+            }
+        }
+        swap = Score[i];
+        Score[i] = Score[maxIndex];
+        Score[maxIndex] = swap;
+        max = -1;
+    }
+    SetScores();
 }
 void DisplayScores()
 {
