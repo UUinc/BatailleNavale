@@ -655,15 +655,15 @@ void GetPlayerScore()
     else if(_player[1].score >= 20) printf("%s\n",Lang[lang].word[49]); //Not bad
     else printf("%s\n",Lang[lang].word[50]);                            //Very bad
 
-    gotoXY(42,wherey()+1); printf("Nickname     = %s\n",_player[1].name);
-    gotoXY(42,wherey());   printf("Missiles     = %d\n",MissileHit+9);
-    gotoXY(42,wherey());   printf("Time elapsed = %d s\n",_player[1].time);
-    gotoXY(42,wherey());   printf("Score        = %d\n\n",_player[1].score);
+    gotoXY(42,wherey()+1); printf("%s       = %s\n",Lang[lang].word[51] ,_player[1].name);   //Nickname
+    gotoXY(42,wherey());   printf("%s       = %d\n",Lang[lang].word[52] ,MissileHit+9);      //Missiles
+    gotoXY(42,wherey());   printf("%s   = %d s\n",Lang[lang].word[53] ,_player[1].time); //Time elapsed 
+    gotoXY(42,wherey());   printf("%s          = %d\n\n",Lang[lang].word[54] ,_player[1].score);//Score
     if(result != -1) //the nickname is found
     {
         gotoXY(42,wherey());
         textcolor(GREEN);
-        printf("Old score    = %s\n\n",Score[result].score);
+        printf("%s = %s\n\n",Lang[lang].word[55] ,Score[result].score); //previous score
         textcolor(WHITE);
     }
 

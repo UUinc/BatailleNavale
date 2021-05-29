@@ -49,4 +49,9 @@ Fascinating
 Well played
 Not bad
 Very bad
-50
+Nickname
+Missiles
+Time elapsed
+Score
+Previous score
+55

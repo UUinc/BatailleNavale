@@ -49,4 +49,9 @@ Fascinant
 Bien joue
 Pas mal
 Tres mauvais
-50
+Surnom
+Missiles
+Temps ecoule
+Score
+Score precedent
+55
