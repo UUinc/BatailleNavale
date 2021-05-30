@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 #include <conio.h>
 #include <windows.h>
@@ -47,14 +46,15 @@ int Menu(void);
 void DisplayGrid(int choice, int posX);
 //Mode
 int ModeClassic(void);
+int ModeExtended(void);
 void PlaceShips_Computer(void);
 //Ships Placing
 void PlaceShips(int player);
 void SetShip(char name, char data[][6]);
 //Ships Destroying
 void DestroyShips(int player);
-void DestroyShips_Multiplayer(void);
-int MissileLauncher(int x, int y, int nbrCases, int player, int offset);
+void DestroyShips_Multiplayer(int level);
+int MissileLauncher(int x, int y, int nbrCases, int player, int offset, int level);
 void SetPlayerScore(void);
 void GetPlayerScore(void);
 //How To Play
@@ -94,12 +94,13 @@ char path[MAX_PATH];
 int darkMode=0; //0 = off - 1 = on
 char dataShip[6][6], dataMissile[6][6];
 char dataShip2[6][6], dataMissile2[6][6];
+int hits, hits2;
 int MissileHit=0;
 int lang=0; //en : 0 | fr : 1
 
 int main(int argc, char* argv[])
 {
-    int result, classicResult, advancedResult;
+    int result, modeResult;
     
     //Change Application Font size
     FontSize(28);
@@ -141,12 +142,12 @@ int main(int argc, char* argv[])
                 MissileHit = 0;
                 clrscr();
                 //Mode vs Computer or vs Human
-                classicResult = ModeClassic();
+                modeResult = ModeClassic();
                 //go back to home scene
-                if(classicResult == 0)
+                if(modeResult == 0)
                     break;
                 //Vs Computer
-                else if(classicResult == 1)
+                else if(modeResult == 1)
                 {
                     clrscr();
                     //Set Name 
@@ -157,7 +158,7 @@ int main(int argc, char* argv[])
                     PlaceShips_Computer();
                 }
                 //Vs Human
-                else if(classicResult == 2)
+                else if(modeResult == 2)
                 {
                     clrscr();
                     //Set Names
@@ -179,7 +180,15 @@ int main(int argc, char* argv[])
                 InitData(dataMissile,6,' ');
                 InitData(dataShip2,6,' ');
                 InitData(dataMissile2,6,' ');
+                hits = hits2 = 0;
                 clrscr();
+                //Mode Extended
+                modeResult = ModeExtended();
+                clrscr();
+                //go back to home scene
+                if(modeResult == 0)
+                    break;
+                
                 //Set Names
                 SetPlayersNickname(0);
                 //Player1 place ships
@@ -188,8 +197,10 @@ int main(int argc, char* argv[])
                 //Player2 place ships
                 PlaceShips(1);
                 getch();
-                //Player1 place ships
-                DestroyShips_Multiplayer();
+                
+                //Players destroy ships
+                DestroyShips_Multiplayer(modeResult);
+
                 getch();
                 break;
             case 3: HowToPlay(lang); break;
@@ -354,10 +365,35 @@ int ModeClassic()
         gotoXY(43,wherey()); printf("2.%s\n",Lang[lang].word[58]);   //Versus Human
         gotoXY(43,wherey()); printf("0.%s\n\n",Lang[lang].word[59]); //Back To Home
 
-        gotoXY(43,wherey()); printf("%s : ",Lang[lang].word[7]);
+        gotoXY(43,wherey()); printf("%s : ",Lang[lang].word[7]); //choice
         error = scanf("%d",&result);
 
         if(error == 1 && result >= 0 && result < 3) break;
+        //Incorrect choice error message
+        gotoXY(40,wherey());textcolor(RED);
+        printf("\a%s!",Lang[lang].word[8]);textcolor(WHITE); //incorrect choice
+        delay(1000); printf("\x1b[2K\x1b[1F\x1b[2K\x1b[1F");
+    }while(1);
+
+    return result;
+}
+int ModeExtended()
+{
+    int result, error;
+
+    do
+    {
+        gotoXY(45,wherey()); printf("%s\n\n",Lang[lang].word[61]); //Extended Mode
+
+        gotoXY(43,wherey()); printf("1.%s\n",Lang[lang].word[62]);   //Level 1 : (easy)
+        gotoXY(43,wherey()); printf("2.%s\n",Lang[lang].word[63]);   //Level 2 : (medium)
+        gotoXY(43,wherey()); printf("3.%s\n",Lang[lang].word[64]);   //Level 3 : (hard)
+        gotoXY(43,wherey()); printf("0.%s\n\n",Lang[lang].word[59]); //Back To Home
+
+        gotoXY(43,wherey()); printf("%s : ",Lang[lang].word[7]); //choice
+        error = scanf("%d",&result);
+
+        if(error == 1 && result >= 0 && result < 4) break;
         //Incorrect choice error message
         gotoXY(40,wherey());textcolor(RED);
         printf("\a%s!",Lang[lang].word[8]);textcolor(WHITE); //incorrect choice
@@ -618,16 +654,18 @@ void DestroyShips(int player)
         gotoXY(38,wherey());printf("%s (%s)\n\n",_name, Lang[lang].word[25]); //destroy the ships
         DisplayGrid(player+2,37);
         GetCoordinate(&pos.x,&pos.y, 37);
-    } while (MissileLauncher(pos.x,pos.y,9,player,37));
+    } while (MissileLauncher(pos.x,pos.y,9,player,37,1));
     system("cls");
     gotoXY(47,wherey()); textcolor(LIGHTGREEN); printf("%s!\n\n",Lang[lang].word[26]); textcolor(WHITE); //Good Job
     DisplayGrid(player+2,37);
 }
-void DestroyShips_Multiplayer()
+void DestroyShips_Multiplayer(int level)
 {
     int player=0, r;
     int displayY; // to have two Grids in the same horizontal line 
     position pos;
+    int _missiles = 20;
+    int draw = 0;
 
     do
     {
@@ -635,17 +673,52 @@ void DestroyShips_Multiplayer()
         gotoXY(43,wherey());printf("(%s)\n\n",Lang[lang].word[25]);//destroy the ships
         //Display Player 1 Grid
         displayY = wherey();
-        textcolor(player?WHITE:LIGHTGREEN); gotoXY(25,displayY);printf("%s\n\n",_player[0].name); 
+        gotoXY(25,displayY);
+        if(!player) printf("\xAF ");
+        textcolor(player?WHITE:LIGHTGREEN);
+        printf("%s\n\n",_player[0].name); 
+
         textcolor(WHITE); DisplayGrid(2,16);
         //Display Player 2 Grid
-        textcolor(player?LIGHTGREEN:WHITE); gotoXY(74,displayY);printf("%s\n\n",_player[1].name);
+        gotoXY(74,displayY);
+        if(player) printf("\xAF ");
+        textcolor(player?LIGHTGREEN:WHITE);
+        printf("%s\n\n",_player[1].name);
         textcolor(WHITE); DisplayGrid(3,65);
+
+        //show how much missiles left
+        if(level == 3)
+        {
+            gotoXY(player?65:16,wherey()+1);
+            if(_missiles <= 3) textcolor(RED);
+            printf("%s : %d\n\n",Lang[lang].word[65] ,_missiles); //Missiles
+            textcolor(WHITE);
+        }
         //Get Coordinate
         GetCoordinate(&pos.x,&pos.y,player?65:16);
-        r = MissileLauncher(pos.x,pos.y,9,1-player,player?65:16);
+        
+        r = MissileLauncher(pos.x,pos.y,9,1-player,player?65:16,level);
+        
         if(!r) break;
-        if(r == -1) player = 1-player; //change player turn
+
+        if(level == 3)
+        {
+            if(_missiles <= 1)
+            {
+                if(player == 1) 
+                {
+                    draw = 1;
+                    break;
+                }
+                player = 1-player; //change player turn
+                _missiles = 21;
+            }
+            if(r != 2) _missiles--; //block striked don't decrement missiles 
+        }
+        else if(r == -1) player = 1-player; //change player turn
+
     }while (1);
+
     system("cls");
     gotoXY(49,wherey()); textcolor(LIGHTGREEN); printf("%s!\n\n",Lang[lang].word[27]); textcolor(WHITE);//Awesome
     //Display Player 1 Grid
@@ -656,17 +729,24 @@ void DestroyShips_Multiplayer()
     gotoXY(74,displayY);printf("%s\n\n",_player[1].name);
     DisplayGrid(3,65);
 
-    gotoXY(40,wherey()+1);
-    textcolor(LIGHTGREEN); printf("%s %s",_player[player].name, Lang[lang].word[28]); //Won
-    textcolor(WHITE); printf(" - ");
-    textcolor(RED); printf("%s %s",_player[1-player].name, Lang[lang].word[29]); //Lost
-    textcolor(WHITE);
-    gotoXY(44,wherey()+1);printf("%s!",Lang[lang].word[11]);//Press any key
+    if(draw)
+    {
+        gotoXY(49,wherey()+1);
+        printf("< %s >", Lang[lang].word[66]); //Draw
+    }
+    else
+    {
+        gotoXY(43,wherey()+1);
+        textcolor(LIGHTGREEN); printf("%s %s",_player[player].name, Lang[lang].word[28]); //Won
+        textcolor(WHITE); printf(" - ");
+        textcolor(RED); printf("%s %s",_player[1-player].name, Lang[lang].word[29]); //Lost
+        textcolor(WHITE);
+    }
+    
+    gotoXY(46,wherey()+1);printf("%s!",Lang[lang].word[11]);//Press any key
 }
-int MissileLauncher(int x, int y, int nbrCases, int player, int offset)
+int MissileLauncher(int x, int y, int nbrCases, int player, int offset, int level)
 {
-    static int hits=0, hits2=0;
-
     if(player == 0)
     {
         if(dataMissile[x][y] == ' ')
@@ -674,7 +754,8 @@ int MissileLauncher(int x, int y, int nbrCases, int player, int offset)
             if(dataShip[x][y] == ' ' || dataShip[x][y] == '#')
             {
                 //Score
-                MissileHit++; 
+                MissileHit++;
+                if(level == 1)
                 dataMissile[x][y] = 'X';
                 return -1;
             }
@@ -698,7 +779,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player, int offset)
             printf("\a%s!\n",Lang[lang].word[30]);//The Box already striked
             textcolor(WHITE);
             delay(1000);
-            return 1;
+            return 2;
         }
     }
     else
@@ -707,6 +788,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player, int offset)
         {
             if(dataShip2[x][y] == ' ' || dataShip2[x][y] == '#')
             {
+                if(level == 1)
                 dataMissile2[x][y] = 'X';
                 return -1;
             }
@@ -730,7 +812,7 @@ int MissileLauncher(int x, int y, int nbrCases, int player, int offset)
             printf("\a%s!\n",Lang[lang].word[30]);//The Box already striked
             textcolor(WHITE);
             delay(1000);
-            return 1;
+            return 2;
         }
     }
 }

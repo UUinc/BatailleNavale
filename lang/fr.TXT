@@ -59,4 +59,10 @@ Contre l'ordinateur
 Contre l'humain
 Retour a la menu principale
 L'ordinateur a reussi a placer les navires
-60
+Mode etendu
+Niveau 1: (facile)
+Niveau 2: (moyen)
+Niveau 3: (difficile)
+Missiles
+Match nul
+66

@@ -59,4 +59,10 @@ Versus Computer
 Versus Human
 Back To Home
 Computer did Place ships successfully
-60
+Extended Mode
+Level 1 : (easy)
+Level 2 : (medium)
+Level 3 : (hard)
+Missiles
+Draw
+66
